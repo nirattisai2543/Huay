@@ -92,16 +92,20 @@
     function showPage(p) { document.getElementById('page-menu').style.display = p=='page-menu'?'block':'none'; document.getElementById('page-main').style.display = p=='page-main'?'block':'none'; }
     function resetAll() { localStorage.removeItem('napas_save'); location.reload(); }
     function adjustDate(d) { currentDate.setDate(currentDate.getDate() + d); updateDateUI(); saveAll(); }
+    
     function prepareImage() { 
         document.querySelectorAll('.number-box').forEach(b => b.classList.remove('selected')); 
         html2canvas(document.getElementById('capture'), { scale: 2 }).then(canvas => { 
             const img = document.getElementById('result-img'); 
             img.src = canvas.toDataURL("image/png"); 
             img.style.display = 'block'; 
-            img.scrollIntoView({ behavior: 'smooth' }); 
             document.getElementById('btn-top').style.display = 'block';
+            setTimeout(() => {
+                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+            }, 100);
         }); 
     }
+    
     function filterLottery(q) { q = q.toLowerCase(); document.querySelectorAll('.btn-lotto').forEach(b => { b.style.display = b.textContent.toLowerCase().includes(q) ? "block" : "none"; }); }
     function toggleLock() { isLocked = !isLocked; document.getElementById('lock-btn').textContent = isLocked ? "🔒 ล็อคแล้ว" : "🔓 ปลดล็อค"; document.getElementById('lock-btn').style.background = isLocked ? "#b8860b" : "#333"; }
     
@@ -110,10 +114,8 @@
         w1 = Math.floor(Math.random()*10);
         do { w2 = Math.floor(Math.random()*10); } while (w2 === w1);
         do { den = Math.floor(Math.random()*10); } while (den === w1 || den === w2);
-        
         document.getElementById('wing').textContent = w1 + " - " + w2;
         document.getElementById('den').textContent = den;
-        
         const s = [w1, w2, den];
         document.querySelectorAll('#t1, #t2, #t3').forEach(el => {
             const p = s[Math.floor(Math.random()*s.length)];
