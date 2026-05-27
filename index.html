@@ -61,7 +61,6 @@
 <script>
     let currentDate = new Date();
     
-    // --- ระบบ Auto Save ---
     function saveAll() {
         const state = {};
         document.querySelectorAll('.number-box').forEach(b => {
@@ -87,8 +86,6 @@
     }
 
     function resetAll() { localStorage.removeItem('napas_save'); location.reload(); }
-    // -----------------------
-
     function changeDate() { currentDate.setDate(currentDate.getDate() + 1); document.getElementById('date-display').textContent = currentDate.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' }); saveAll(); }
     
     function prepareImage() {
@@ -105,18 +102,27 @@
     let isLocked = false, selectedBox = null;
     
     function filterLottery(q) { q = q.toLowerCase(); document.querySelectorAll('.btn-lotto').forEach(b => { b.style.display = b.textContent.toLowerCase().includes(q) ? "block" : "none"; }); if(q !== "") document.querySelectorAll('.lottery-list').forEach(l => l.classList.add('active')); }
-    const menu = document.getElementById('menu'); Object.keys(db).forEach(f => { let b = document.createElement('button'); b.className='btn-folder'; b.textContent=f; let l = document.createElement('div'); l.className='lottery-list'; b.onclick = () => { document.querySelectorAll('.lottery-list').forEach(i=>i.classList.remove('active')); l.classList.add('active'); }; db[f].forEach(n => { let s = document.createElement('button'); s.className='btn-lotto'; s.textContent=n; s.onclick = () => { document.getElementById('title').textContent=n; showPage('page-main'); saveAll(); }; l.appendChild(s); }); menu.appendChild(b); menu.appendChild(l); });
+    const menu = document.getElementById('menu'); Object.keys(db).forEach(f => { let b = document.createElement('button'); b.className='btn-folder'; b.textContent=f; let l = document.createElement('div'); l.className='lottery-list'; b.onclick = () => { document.querySelectorAll('.lottery-list').forEach(i=>i.classList.remove('active')); l.classList.add('active'); }; db[f].forEach(n => { let s = document.createElement('button'); s.className='btn-lotto'; s.textContent=n; s.onclick = () => { document.getElementById('title').textContent=n; showPage('page-main'); genNumbers(); saveAll(); }; l.appendChild(s); }); menu.appendChild(b); menu.appendChild(l); });
     function toggleLock() { isLocked = !isLocked; document.getElementById('lock-btn').textContent = isLocked ? "🔒 ล็อคแล้ว" : "🔓 ปลดล็อค"; document.getElementById('lock-btn').style.background = isLocked ? "#b8860b" : "#333"; }
     function showPage(p) { document.getElementById('page-menu').style.display = p=='page-menu'?'block':'none'; document.getElementById('page-main').style.display = p=='page-main'?'block':'none'; }
     
     function genNumbers() { 
-        document.getElementById('wing').textContent=Math.floor(Math.random()*10)+" - "+Math.floor(Math.random()*10); 
-        document.getElementById('den').textContent=Math.floor(Math.random()*10); 
-        document.getElementById('t1').textContent=Math.floor(Math.random()*90+10); 
-        document.getElementById('t2').textContent=Math.floor(Math.random()*90+10); 
-        document.getElementById('t3').textContent=Math.floor(Math.random()*90+10); 
-        document.getElementById('m1').textContent=Math.floor(Math.random()*900+100); 
-        document.getElementById('m2').textContent=Math.floor(Math.random()*900+100); 
+        const w1 = Math.floor(Math.random()*10);
+        const w2 = Math.floor(Math.random()*10);
+        const den = Math.floor(Math.random()*10);
+        document.getElementById('wing').textContent = w1 + " - " + w2; 
+        document.getElementById('den').textContent = den;
+        
+        const sources = [w1, w2, den];
+        
+        document.querySelectorAll('#t1, #t2, #t3').forEach(el => {
+            const pick = sources[Math.floor(Math.random() * sources.length)];
+            const other = Math.floor(Math.random() * 10);
+            el.textContent = Math.random() > 0.5 ? (pick.toString() + other) : (other.toString() + pick);
+        });
+        
+        document.getElementById('m1').textContent = Math.floor(Math.random()*900+100); 
+        document.getElementById('m2').textContent = Math.floor(Math.random()*900+100); 
         saveAll();
     }
     
