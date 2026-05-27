@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบสุ่มหวย Napas1805 - จัดระเบียบ</title>
+    <title>ระบบสุ่มหวย Napas1805 - Final Version</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Charmonman:wght@400;700&family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
@@ -12,12 +12,9 @@
         #page-menu, #page-main { width: 100%; max-width: 600px; }
         #page-main { display: none; text-align: center; }
         
-        /* สไตล์ปุ่มและ Grid */
         .button-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
         .btn-action { padding: 12px; font-size: 14px; font-weight: bold; border: none; border-radius: 10px; cursor: pointer; font-family: 'Sarabun'; color: #fff; }
         .full-width { grid-column: span 2; }
-        
-        .date-box { background: #222; padding: 10px; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 15px; border: 1px solid #b8860b; }
         
         .search-input { width: 90%; padding: 12px; margin: 0 auto 15px; display: block; border-radius: 25px; border: 1px solid #b8860b; background: #222; color: white; text-align: center; }
         .btn-folder { width: 100%; padding: 12px; background: #222; border: 1px solid #b8860b; color: #ffd700; border-radius: 8px; margin-bottom: 5px; cursor: pointer; }
@@ -29,6 +26,7 @@
         .number-box { position: absolute; font-weight: 700; color: #3a1a02; text-align: center; font-family: 'Charmonman'; touch-action: none; cursor: pointer; border: 2px solid transparent; }
         .number-box.selected { border: 2px solid #ffd700 !important; background: rgba(255, 255, 255, 0.1); }
         #result-img { width: 100%; margin-top: 20px; border-radius: 10px; border: 3px solid #ffd700; display: none; }
+        .date-box-container { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; }
     </style>
 </head>
 <body>
@@ -51,16 +49,20 @@
 
     <div style="background:#1a1a1a; padding:10px; border-radius:10px; margin-bottom:15px;">
         <div style="margin-bottom:10px; font-size:14px; color:#ffd700;">ปรับขนาดเลข: <input type="range" id="size-slider" min="20" max="100" oninput="resizeSelected(this.value)"></div>
-        <div class="date-box">
-            <button onclick="adjustDate(-1)" style="border:none; background:#b8860b; color:white; border-radius:5px; padding:5px 10px; cursor:pointer;">- วัน</button>
-            <span id="date-display" style="font-size:18px; font-weight:bold; color:white; width: 120px;">27 พ.ค. 69</span>
-            <button onclick="adjustDate(1)" style="border:none; background:#b8860b; color:white; border-radius:5px; padding:5px 10px; cursor:pointer;">+ วัน</button>
-        </div>
     </div>
     
     <div class="container" id="capture">
         <div id="title" class="number-box" style="top:35%; left:5%; width:90%; font-size:40px;">หวยรัฐบาล</div>
         <div id="line" class="number-box" style="top:25%; left:45%; width:40%; font-size:13px; color:white; font-family:Sarabun;">napas1805</div>
+        
+        <div id="date-display" class="number-box" style="top:45%; left:5%; width:90%; font-size:24px; color:#3a1a02;">
+            <div class="date-box-container">
+                <button onclick="event.stopPropagation(); adjustDate(-1)" style="border:none; background:rgba(0,0,0,0.1); border-radius:5px; cursor:pointer;">◀</button>
+                <span id="date-text">27 พ.ค. 69</span>
+                <button onclick="event.stopPropagation(); adjustDate(1)" style="border:none; background:rgba(0,0,0,0.1); border-radius:5px; cursor:pointer;">▶</button>
+            </div>
+        </div>
+
         <div id="wing" class="number-box" style="top:60%; left:5%; width:50%; font-size:50px;">...</div>
         <div id="den" class="number-box" style="top:60%; left:65%; width:25%; font-size:50px; color:red;">...</div>
         <div id="t1" class="number-box" style="top:74%; left:5%; width:25%; font-size:40px;">...</div>
@@ -88,7 +90,7 @@
         const save = JSON.parse(localStorage.getItem('napas_save'));
         if(!save) return;
         currentDate = new Date(save.date);
-        document.getElementById('date-display').textContent = currentDate.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' });
+        document.getElementById('date-text').textContent = currentDate.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' });
         Object.keys(save).forEach(id => {
             if(id === 'date') return;
             const el = document.getElementById(id);
@@ -97,7 +99,7 @@
     }
 
     function resetAll() { localStorage.removeItem('napas_save'); location.reload(); }
-    function adjustDate(d) { currentDate.setDate(currentDate.getDate() + d); document.getElementById('date-display').textContent = currentDate.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' }); saveAll(); }
+    function adjustDate(d) { currentDate.setDate(currentDate.getDate() + d); document.getElementById('date-text').textContent = currentDate.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' }); saveAll(); }
     function prepareImage() { document.querySelectorAll('.number-box').forEach(b => b.classList.remove('selected')); html2canvas(document.getElementById('capture'), { scale: 2 }).then(canvas => { const img = document.getElementById('result-img'); img.src = canvas.toDataURL("image/png"); img.style.display = 'block'; img.scrollIntoView({ behavior: 'smooth' }); }); }
     function filterLottery(q) { q = q.toLowerCase(); document.querySelectorAll('.btn-lotto').forEach(b => { b.style.display = b.textContent.toLowerCase().includes(q) ? "block" : "none"; }); if(q !== "") document.querySelectorAll('.lottery-list').forEach(l => l.classList.add('active')); }
     
