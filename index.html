@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบสุ่มหวย Napas1805 - Full Version</title>
+    <title>ระบบสุ่มหวย Napas1805 - Auto Save</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Charmonman:wght@400;700&family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
@@ -17,7 +17,6 @@
         .lottery-list.active { display: flex; }
         .btn-lotto { padding: 8px 12px; background: #333; border: 1px solid #555; color: #fff; cursor: pointer; border-radius: 5px; }
         .btn-action { width: 100%; padding: 12px; font-size: 18px; font-weight: bold; color: #fff; border: none; border-radius: 25px; cursor: pointer; margin-bottom: 10px; font-family: 'Charmonman'; }
-        
         .container { position: relative; width: 100%; aspect-ratio: 2 / 3; background-image: url('20183.png'); background-size: cover; background-position: center; border-radius: 10px; margin: 0 auto; overflow: hidden; }
         .number-box { position: absolute; font-weight: 700; color: #3a1a02; text-align: center; font-family: 'Charmonman'; touch-action: none; cursor: pointer; border: 2px solid transparent; }
         .number-box.selected { border: 2px solid #ffd700 !important; background: rgba(255, 255, 255, 0.1); }
@@ -36,12 +35,13 @@
     <button class="btn-action" style="background:#555;" onclick="showPage('page-menu')">← กลับไปเลือกหวย</button>
     <button class="btn-action" style="background:linear-gradient(45deg, #b8860b, #ffd700);" onclick="genNumbers()">สุ่มเลขนำโชค</button>
     <button class="btn-action" id="lock-btn" onclick="toggleLock()" style="background:#333;">🔓 ปลดล็อคตำแหน่ง</button>
+    <button class="btn-action" style="background:#cc0000;" onclick="resetAll()">🔄 รีเซ็ตทั้งหมด</button>
     
     <div style="margin: 10px 0; color: #ffd700; background:#222; padding:10px; border-radius:15px;">
         ปรับขนาดเลข: <input type="range" id="size-slider" min="20" max="100" oninput="resizeSelected(this.value)">
     </div>
     
-    <button class="btn-action" style="background:#007bff;" onclick="prepareImage()">🖼️ สร้างรูป (กดค้างที่รูปเพื่อบันทึก)</button>
+    <button class="btn-action" style="background:#007bff;" onclick="prepareImage()">🖼️ สร้างรูป</button>
     
     <div class="container" id="capture">
         <div id="title" class="number-box" style="top:35%; left:5%; width:90%; font-size:40px;">หวยรัฐบาล</div>
@@ -60,7 +60,36 @@
 
 <script>
     let currentDate = new Date();
-    function changeDate() { currentDate.setDate(currentDate.getDate() + 1); document.getElementById('date-display').textContent = currentDate.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' }); }
+    
+    // --- ระบบ Auto Save ---
+    function saveAll() {
+        const state = {};
+        document.querySelectorAll('.number-box').forEach(b => {
+            state[b.id] = { x: b.getAttribute('data-x')||0, y: b.getAttribute('data-y')||0, fs: b.style.fontSize, txt: b.textContent };
+        });
+        state['date'] = currentDate.toString();
+        localStorage.setItem('napas_save', JSON.stringify(state));
+    }
+
+    function loadAll() {
+        const save = JSON.parse(localStorage.getItem('napas_save'));
+        if(!save) return;
+        currentDate = new Date(save.date);
+        Object.keys(save).forEach(id => {
+            if(id === 'date') return;
+            const el = document.getElementById(id);
+            if(el) {
+                el.style.transform = `translate(${save[id].x}px, ${save[id].y}px)`;
+                el.setAttribute('data-x', save[id].x); el.setAttribute('data-y', save[id].y);
+                el.style.fontSize = save[id].fs; el.textContent = save[id].txt;
+            }
+        });
+    }
+
+    function resetAll() { localStorage.removeItem('napas_save'); location.reload(); }
+    // -----------------------
+
+    function changeDate() { currentDate.setDate(currentDate.getDate() + 1); document.getElementById('date-display').textContent = currentDate.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' }); saveAll(); }
     
     function prepareImage() {
         document.querySelectorAll('.number-box').forEach(b => b.classList.remove('selected'));
@@ -74,15 +103,29 @@
 
     const db = {"รายวัน": ["ประชาชนลาว", "ลาว Extra", "ฮานอยอาเซียน", "ลาว TV", "ฮานอย HD", "ฮานอย สตาร์", "ลาว HD", "ฮานอย TV", "ลาวสตาร์", "ฮานอย กาชาด", "ฮานอยสามัคคี", "ฮานอยพัฒนา", "ลาวสามัคคี", "ลาวอาเซียน", "ลาวสามัคคี VIP", "อังกฤษVIP", "ลาวSTAR VIP", "มาเลเซีย", "เยอรมัน VIP", "ลาว กาชาด", "รัสเซียVIP", "ดาวโจนส์ STAR", "ลาวสันติภาพ", "ลาวประตูชัย"], "รัฐบาลไทย": ["รัฐบาลไทย", "ออมสิน", "ธ.ก.ส"], "ฮานอย": ["ฮานอยพิเศษ", "ฮานอยปกติ", "ฮานอย VIP"], "หุ้น": ["หุ้นนิเคอิเช้า", "หุ้นจีนเช้า", "หุ้นฮั่งเส็งเช้า", "หุ้นไต้หวัน", "หุ้นเกาหลี", "หุ้นนิเคอิบ่าย", "หุ้นจีนบ่าย", "หุ้นฮั่งเส็งบ่าย", "หุ้นสิงคโปร์", "หุ้นอียิปต์", "หุ้นไทยเย็น", "หุ้นอินเดีย", "หุ้นเยอรมัน", "หุ้นรัสเซีย", "หุ้นอังกฤษ", "หุ้นดาวโจนส์"], "หุ้น VIP": ["หุ้นนิเคอิเช้า VIP", "หุ้นจีนเช้า VIP", "หุ้นฮั่งเส็งเช้า VIP", "หุ้นไต้หวัน VIP", "หุ้นเกาหลี VIP", "หุ้นนิเคอิบ่าย VIP", "หุ้นจีนบ่าย VIP", "หุ้นฮั่งเส็งบ่าย VIP", "หุ้นสิงคโปร์ VIP", "หุ้นอินเดีย VIP", "หุ้นเยอรมัน VIP", "หุ้นรัสเซีย VIP", "หุ้นอังกฤษ VIP", "หุ้นดาวโจนส์ VIP"], "พิเศษ": ["ฮานอยเที่ยง", "ลาวพิเศษ", "ลาวVIP", "ลาวเวียงจันทน์"], "อื่นๆ": ["ฮานอย EXTRA", "ฮานอยตรุษจีน"]};
     let isLocked = false, selectedBox = null;
+    
     function filterLottery(q) { q = q.toLowerCase(); document.querySelectorAll('.btn-lotto').forEach(b => { b.style.display = b.textContent.toLowerCase().includes(q) ? "block" : "none"; }); if(q !== "") document.querySelectorAll('.lottery-list').forEach(l => l.classList.add('active')); }
-    const menu = document.getElementById('menu'); Object.keys(db).forEach(f => { let b = document.createElement('button'); b.className='btn-folder'; b.textContent=f; let l = document.createElement('div'); l.className='lottery-list'; b.onclick = () => { document.querySelectorAll('.lottery-list').forEach(i=>i.classList.remove('active')); l.classList.add('active'); }; db[f].forEach(n => { let s = document.createElement('button'); s.className='btn-lotto'; s.textContent=n; s.onclick = () => { document.getElementById('title').textContent=n; showPage('page-main'); genNumbers(); }; l.appendChild(s); }); menu.appendChild(b); menu.appendChild(l); });
+    const menu = document.getElementById('menu'); Object.keys(db).forEach(f => { let b = document.createElement('button'); b.className='btn-folder'; b.textContent=f; let l = document.createElement('div'); l.className='lottery-list'; b.onclick = () => { document.querySelectorAll('.lottery-list').forEach(i=>i.classList.remove('active')); l.classList.add('active'); }; db[f].forEach(n => { let s = document.createElement('button'); s.className='btn-lotto'; s.textContent=n; s.onclick = () => { document.getElementById('title').textContent=n; showPage('page-main'); saveAll(); }; l.appendChild(s); }); menu.appendChild(b); menu.appendChild(l); });
     function toggleLock() { isLocked = !isLocked; document.getElementById('lock-btn').textContent = isLocked ? "🔒 ล็อคแล้ว" : "🔓 ปลดล็อค"; document.getElementById('lock-btn').style.background = isLocked ? "#b8860b" : "#333"; }
     function showPage(p) { document.getElementById('page-menu').style.display = p=='page-menu'?'block':'none'; document.getElementById('page-main').style.display = p=='page-main'?'block':'none'; }
-    function genNumbers() { document.getElementById('wing').textContent=Math.floor(Math.random()*10)+" - "+Math.floor(Math.random()*10); document.getElementById('den').textContent=Math.floor(Math.random()*10); document.getElementById('t1').textContent=Math.floor(Math.random()*90+10); document.getElementById('t2').textContent=Math.floor(Math.random()*90+10); document.getElementById('t3').textContent=Math.floor(Math.random()*90+10); document.getElementById('m1').textContent=Math.floor(Math.random()*900+100); document.getElementById('m2').textContent=Math.floor(Math.random()*900+100); }
-    interact('.number-box').draggable({ listeners: { move(e) { if(!isLocked) { const t=e.target; const x=(parseFloat(t.getAttribute('data-x'))||0)+e.dx; const y=(parseFloat(t.getAttribute('data-y'))||0)+e.dy; t.style.transform=`translate(${x}px, ${y}px)`; t.setAttribute('data-x', x); t.setAttribute('data-y', y); } } } });
+    
+    function genNumbers() { 
+        document.getElementById('wing').textContent=Math.floor(Math.random()*10)+" - "+Math.floor(Math.random()*10); 
+        document.getElementById('den').textContent=Math.floor(Math.random()*10); 
+        document.getElementById('t1').textContent=Math.floor(Math.random()*90+10); 
+        document.getElementById('t2').textContent=Math.floor(Math.random()*90+10); 
+        document.getElementById('t3').textContent=Math.floor(Math.random()*90+10); 
+        document.getElementById('m1').textContent=Math.floor(Math.random()*900+100); 
+        document.getElementById('m2').textContent=Math.floor(Math.random()*900+100); 
+        saveAll();
+    }
+    
+    interact('.number-box').draggable({ listeners: { move(e) { if(!isLocked) { const t=e.target; const x=(parseFloat(t.getAttribute('data-x'))||0)+e.dx; const y=(parseFloat(t.getAttribute('data-y'))||0)+e.dy; t.style.transform=`translate(${x}px, ${y}px)`; t.setAttribute('data-x', x); t.setAttribute('data-y', y); saveAll(); } } } });
     document.querySelectorAll('.number-box').forEach(box => { box.onclick = (e) => { e.stopPropagation(); document.querySelectorAll('.number-box').forEach(b=>b.classList.remove('selected')); box.classList.add('selected'); selectedBox=box; document.getElementById('size-slider').value = parseInt(window.getComputedStyle(box).fontSize); }; });
     document.body.addEventListener('click', () => { document.querySelectorAll('.number-box').forEach(b => b.classList.remove('selected')); selectedBox = null; });
-    function resizeSelected(v) { if(selectedBox) selectedBox.style.fontSize = v + 'px'; }
+    function resizeSelected(v) { if(selectedBox) { selectedBox.style.fontSize = v + 'px'; saveAll(); } }
+    
+    window.onload = loadAll;
 </script>
 </body>
 </html>
