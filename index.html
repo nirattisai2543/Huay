@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบสุ่มหวย Napas1805 - Final</title>
+    <title>ระบบสุ่มหวย Napas1805 - Final Complete</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Charmonman:wght@400;700&family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
@@ -93,7 +93,27 @@
     function prepareImage() { document.querySelectorAll('.number-box').forEach(b => b.classList.remove('selected')); html2canvas(document.getElementById('capture'), { scale: 2 }).then(canvas => { const img = document.getElementById('result-img'); img.src = canvas.toDataURL("image/png"); img.style.display = 'block'; img.scrollIntoView({ behavior: 'smooth' }); }); }
     function filterLottery(q) { q = q.toLowerCase(); document.querySelectorAll('.btn-lotto').forEach(b => { b.style.display = b.textContent.toLowerCase().includes(q) ? "block" : "none"; }); }
     function toggleLock() { isLocked = !isLocked; document.getElementById('lock-btn').textContent = isLocked ? "🔒 ล็อคแล้ว" : "🔓 ปลดล็อค"; document.getElementById('lock-btn').style.background = isLocked ? "#b8860b" : "#333"; }
-    function genNumbers() { const w1 = Math.floor(Math.random()*10); const w2 = Math.floor(Math.random()*10); const den = Math.floor(Math.random()*10); document.getElementById('wing').textContent = w1 + " - " + w2; document.getElementById('den').textContent = den; const s = [w1, w2, den]; document.querySelectorAll('#t1, #t2, #t3').forEach(el => { const p = s[Math.floor(Math.random()*s.length)]; const o = Math.floor(Math.random()*10); el.textContent = Math.random() > 0.5 ? (p.toString()+o) : (o.toString()+p); }); document.getElementById('m1').textContent = Math.floor(Math.random()*900+100); document.getElementById('m2').textContent = Math.floor(Math.random()*900+100); saveAll(); }
+    
+    function genNumbers() {
+        let w1, w2, den;
+        w1 = Math.floor(Math.random()*10);
+        do { w2 = Math.floor(Math.random()*10); } while (w2 === w1);
+        do { den = Math.floor(Math.random()*10); } while (den === w1 || den === w2);
+        
+        document.getElementById('wing').textContent = w1 + " - " + w2;
+        document.getElementById('den').textContent = den;
+        
+        const s = [w1, w2, den];
+        document.querySelectorAll('#t1, #t2, #t3').forEach(el => {
+            const p = s[Math.floor(Math.random()*s.length)];
+            const o = Math.floor(Math.random()*10);
+            el.textContent = Math.random() > 0.5 ? (p.toString()+o) : (o.toString()+p);
+        });
+        document.getElementById('m1').textContent = Math.floor(Math.random()*900+100);
+        document.getElementById('m2').textContent = Math.floor(Math.random()*900+100);
+        saveAll();
+    }
+
     interact('.number-box').draggable({ listeners: { move(e) { if(!isLocked) { const t=e.target; const x=(parseFloat(t.getAttribute('data-x'))||0)+e.dx; const y=(parseFloat(t.getAttribute('data-y'))||0)+e.dy; t.style.transform=`translate(${x}px, ${y}px)`; t.setAttribute('data-x', x); t.setAttribute('data-y', y); saveAll(); } } } });
     document.querySelectorAll('.number-box').forEach(box => { box.onclick = (e) => { e.stopPropagation(); document.querySelectorAll('.number-box').forEach(b=>b.classList.remove('selected')); box.classList.add('selected'); selectedBox=box; document.getElementById('size-slider').value = parseInt(window.getComputedStyle(box).fontSize); }; });
     document.body.addEventListener('click', () => { document.querySelectorAll('.number-box').forEach(b => b.classList.remove('selected')); selectedBox = null; });
