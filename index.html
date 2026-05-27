@@ -27,7 +27,6 @@
         .number-box.selected { border: 2px solid #ffd700 !important; background: rgba(255, 255, 255, 0.1); }
         #result-img { width: 100%; margin-top: 20px; border-radius: 10px; border: 3px solid #ffd700; display: none; }
         
-        /* แยกวันที่ออกด้านบน */
         .date-control { background: #222; padding: 10px; border-radius: 10px; border: 1px solid #b8860b; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
     </style>
 </head>
@@ -94,11 +93,7 @@
 
     function loadAll() {
         const save = JSON.parse(localStorage.getItem('napas_save'));
-        if(!save) {
-            currentDate = new Date();
-        } else {
-            currentDate = new Date(save.date);
-        }
+        if(!save) { currentDate = new Date(); } else { currentDate = new Date(save.date); }
         updateDateUI();
         if(save) {
             Object.keys(save).forEach(id => {
