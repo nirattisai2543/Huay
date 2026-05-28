@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ระบบสุ่มหวย Napas1805 - Final Complete</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Charmonman:wght@400;700&family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body { margin: 0; padding: 20px; background-color: #0b0b0b; font-family: 'Sarabun', sans-serif; color: white; min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
@@ -13,72 +14,105 @@
         .button-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
         .btn-action { padding: 12px; font-size: 14px; font-weight: bold; border: none; border-radius: 10px; cursor: pointer; color: #fff; }
         .full-width { grid-column: span 2; }
+        .nav-grid { display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 8px; margin-bottom: 10px; }
+        .search-input { width: 90%; padding: 12px; margin: 0 auto 15px; display: block; border-radius: 25px; border: 1px solid #b8860b; background: #222; color: white; text-align: center; }
+        .btn-folder { width: 100%; padding: 15px; background: #222; border: 2px solid #b8860b; color: #ffd700; border-radius: 12px; margin-bottom: 10px; cursor: pointer; font-size: 16px; font-weight: bold; }
+        .lottery-list { display: none; flex-wrap: wrap; gap: 5px; justify-content: center; background: #1a1a1a; padding: 10px; border-radius: 10px; margin-bottom: 15px; }
+        .lottery-list.active { display: flex; }
+        .btn-lotto { padding: 8px 12px; background: #333; border: 1px solid #555; color: #fff; cursor: pointer; border-radius: 5px; font-size: 13px; }
         
-        /* แก้ปัญหาขอบขาว: ปรับ Container ให้ไม่มีระยะห่างเกินจำเป็น */
         .container { 
-            position: relative; 
-            width: 100%; 
-            aspect-ratio: 2 / 3; 
-            background-image: url('20183.png'); 
-            background-size: cover; 
-            background-position: center; 
-            margin: 0 auto; 
-            overflow: hidden;
-            box-sizing: border-box;
-            border-radius: 10px;
+            position: relative; width: 100%; aspect-ratio: 2 / 3; background-image: url('20183.png'); 
+            background-size: cover; background-position: center; border-radius: 10px; margin: 0 auto; overflow: hidden; box-sizing: border-box;
         }
-        
         .number-box { position: absolute; font-weight: 700; color: #3a1a02; text-align: center; font-family: 'Charmonman'; touch-action: none; cursor: pointer; border: 2px solid transparent; }
         .number-box.selected { border: 2px solid #ffd700 !important; background: rgba(255, 255, 255, 0.1); }
-        #result-img { width: 100%; margin-top: 20px; border: 3px solid #ffd700; display: none; }
+        #result-img { width: 100%; margin-top: 20px; border-radius: 10px; border: 3px solid #ffd700; display: none; }
+        .date-control { background: #222; padding: 10px; border-radius: 10px; border: 1px solid #b8860b; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
-<div id="page-main" style="display: block;">
+<div id="page-menu">
+    <h2 style="text-align:center; color:#ffd700;">เลือกหมวดหมู่หวย</h2>
+    <input type="text" class="search-input" placeholder="🔍 ค้นหาชื่อหวย..." oninput="filterLottery(this.value)">
+    <div id="menu"></div>
+</div>
+
+<div id="page-main">
+    <div class="nav-grid">
+        <button class="btn-action" style="background:#555;" onclick="moveLotto(-1)">◀ ก่อนหน้า</button>
+        <button class="btn-action" style="background:#444;" onclick="showPage('page-menu')">เมนูหลัก</button>
+        <button class="btn-action" style="background:#555;" onclick="moveLotto(1)">ถัดไป ▶</button>
+    </div>
+    
+    <div class="date-control">
+        <button onclick="adjustDate(-1)" style="border:none; background:#b8860b; color:white; padding:10px 20px; border-radius:5px; cursor:pointer;">- วัน</button>
+        <span id="date-label" style="font-size:18px; font-weight:bold;"></span>
+        <button onclick="adjustDate(1)" style="border:none; background:#b8860b; color:white; padding:10px 20px; border-radius:5px; cursor:pointer;">+ วัน</button>
+    </div>
+
     <div class="button-grid">
-        <button class="btn-action full-width" style="background:#007bff;" onclick="prepareImage()">🖼️ สร้างรูปภาพใบหวย (ไร้ขอบขาว)</button>
+        <button class="btn-action full-width" style="background:linear-gradient(45deg, #b8860b, #ffd700); color:#000;" onclick="genNumbers()">สุ่มเลขนำโชค</button>
+        <button class="btn-action" id="lock-btn" onclick="toggleLock()" style="background:#333;">🔓 ปลดล็อค</button>
+        <button class="btn-action" style="background:#cc0000;" onclick="resetAll()">🔄 รีเซ็ตทั้งหมด</button>
+        <button class="btn-action full-width" style="background:#007bff;" onclick="prepareImage()">🖼️ สร้างรูปภาพใบหวย</button>
     </div>
 
     <div class="container" id="capture">
         <div id="title" class="number-box" style="top:35%; left:5%; width:90%; font-size:40px;">หวย</div>
-        <div id="wing" class="number-box" style="top:60%; left:5%; width:50%; font-size:50px;">1 - 2</div>
-        <div id="den" class="number-box" style="top:60%; left:65%; width:25%; font-size:50px; color:red;">3</div>
+        <div id="date-display" class="number-box" style="top:45%; left:5%; width:90%; font-size:24px; color:#3a1a02;"></div>
+        <div id="wing" class="number-box" style="top:60%; left:5%; width:50%; font-size:50px;">...</div>
+        <div id="den" class="number-box" style="top:60%; left:65%; width:25%; font-size:50px; color:red;">...</div>
+        <div id="t1" class="number-box" style="top:74%; left:5%; width:25%; font-size:40px;">...</div>
+        <div id="t2" class="number-box" style="top:74%; left:35%; width:25%; font-size:40px;">...</div>
+        <div id="t3" class="number-box" style="top:74%; left:65%; width:25%; font-size:40px;">...</div>
+        <div id="m1" class="number-box" style="top:86%; left:15%; width:30%; font-size:40px;">...</div>
+        <div id="m2" class="number-box" style="top:86%; left:55%; width:30%; font-size:40px;">...</div>
     </div>
-    
     <img id="result-img">
 </div>
 
 <script>
-    function prepareImage() {
-        const el = document.getElementById('capture');
-        
-        // เคลียร์คลาส selection ออกก่อนถ่าย
-        document.querySelectorAll('.number-box').forEach(b => b.classList.remove('selected'));
+    const db = { "หวย จันทร์-ศุกร์": ["ลาว Extra", "นิเคอิเช้า"], "หวย เสาร์-อาทิตย์": ["ลาว Extra", "นิเคอิเช้า VIP"] };
+    let currentFolder = "หวย จันทร์-ศุกร์", currentIndex = 0, isLocked = false, selectedBox = null;
 
-        html2canvas(el, {
-            scale: 2, // เพิ่มความชัด
-            backgroundColor: null, // ป้องกันพื้นหลังขาว
-            logging: false,
-            // ใช้การตัดขอบด้วยขนาดจริงของ Element
+    function loadLotto(folder, index) { currentFolder = folder; currentIndex = index; document.getElementById('title').textContent = db[folder][index]; showPage('page-main'); }
+    function showPage(p) { document.getElementById('page-menu').style.display = p=='page-menu'?'block':'none'; document.getElementById('page-main').style.display = p=='page-main'?'block':'none'; }
+    function adjustDate(d) { /* ฟังก์ชันวันที่ */ }
+    function genNumbers() { /* ฟังก์ชันสุ่มเลข */ }
+    function toggleLock() { isLocked = !isLocked; document.getElementById('lock-btn').textContent = isLocked ? "🔒 ล็อคแล้ว" : "🔓 ปลดล็อค"; }
+    function resetAll() { localStorage.clear(); location.reload(); }
+
+    function prepareImage() { 
+        document.querySelectorAll('.number-box').forEach(b => b.classList.remove('selected')); 
+        const el = document.getElementById('capture');
+        html2canvas(el, { 
+            scale: 2, 
+            backgroundColor: null,
             width: el.offsetWidth,
             height: el.offsetHeight,
-            windowWidth: el.scrollWidth,
-            windowHeight: el.scrollHeight,
-            x: 0,
-            y: 0,
             onclone: (clonedDoc) => {
-                const clonedEl = clonedDoc.getElementById('capture');
-                clonedEl.style.margin = "0";
-                clonedEl.style.padding = "0";
-                clonedEl.style.borderRadius = "0"; // ลบขอบมนชั่วคราวเพื่อป้องกันเศษขาวที่มุม
+                const c = clonedDoc.getElementById('capture');
+                c.style.margin = "0";
+                c.style.borderRadius = "0"; // ป้องกันขอบมนสร้างเศษขาว
             }
-        }).then(canvas => {
-            const img = document.getElementById('result-img');
-            img.src = canvas.toDataURL("image/png");
-            img.style.display = 'block';
-        });
+        }).then(canvas => { 
+            const img = document.getElementById('result-img'); 
+            img.src = canvas.toDataURL("image/png"); 
+            img.style.display = 'block'; 
+        }); 
     }
+
+    // สร้างเมนูอัตโนมัติ
+    const menu = document.getElementById('menu'); 
+    Object.keys(db).forEach(f => { 
+        let b = document.createElement('button'); b.className='btn-folder'; b.textContent=f; 
+        let l = document.createElement('lottery-list'); l.className='lottery-list'; 
+        b.onclick = () => { document.querySelectorAll('.lottery-list').forEach(i=>i.classList.remove('active')); l.classList.add('active'); }; 
+        db[f].forEach((n, i) => { let s = document.createElement('button'); s.className='btn-lotto'; s.textContent=n; s.onclick = () => loadLotto(f, i); l.appendChild(s); }); 
+        menu.appendChild(b); menu.appendChild(l); 
+    });
 </script>
 </body>
 </html>
