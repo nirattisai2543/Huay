@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบสุ่มหวย Napas1805 - High Quality Export</title>
+    <title>ระบบสุ่มหวย Napas1805</title>
     <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Charmonman:wght@400;700&family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -53,7 +53,7 @@
     </div>
     
     <div style="background:#1a1a1a; padding:10px; border-radius:10px; margin-bottom:15px; text-align:center; color:#ffd700;">
-        กดที่ใบหวยเพื่อดาวน์โหลดภาพชัดระดับไฟล์ต้นฉบับ
+        กดที่ใบหวยเพื่อดาวน์โหลดภาพ
     </div>
     
     <div class="container" id="capture" onclick="downloadCanvas()">
@@ -71,13 +71,12 @@
 </div>
 
 <script>
-    // [ข้อมูลเดิมคงไว้ตามเดิม...]
     let currentDate = new Date();
     const db = {
         "หวย จันทร์-ศุกร์": ["ลาว Extra", "นิเคอิเช้า VIP", "นอยอาเซียน", "นิเคอิเช้า", "จีนเช้า VIP", "จีนเช้า", "ลาว TV", "ฮั่งเส็งเช้า VIP", "ฮั่งเส็งเช้า", "ฮานอย HD", "ไต้หวัน VIP", "ฮานอย STAR", "ไต้หวัน", "เกาหลี", "เกาหลี VIP", "นิเคอิบ่าย", "นิเคอิบ่าย VIP", "ลาว HD", "จีนบ่าย", "ฮานอย TV", "จีนบ่าย VIP", "ฮั่งเส็งบ่าย", "ฮั่งเส็งบ่าย VIP", "ลาวสตาร์", "สิงคโปร์", "ไทยเย็น", "ฮานอยกาชาด", "อินเดีย", "สิงคโปร์ VIP", "อียิปต์", "ฮานอยสามัคคี", "ฮานอยพิเศษ", "ฮานอยปกติ", "ฮานอย VIP", "ฮานอยพัฒนา", "ลาวพัฒนา", "ลาวสามัคคี", "ลาวอาเซียน", "ลาว VIP", "ลาวสามัคคี VIP", "อังกฤษ VIP", "ลาวสตาร์ VIP", "ฮานอย Extra", "อังกฤษ", "เยอรมัน", "รัสเซีย", "เยอรมัน VIP", "ลาวกาชาด", "รัสเซีย VIP", "ดาวโจนส์ VIP", "ดาวโจนส์ STAR", "ดาวโจนส์"],
         "หวย เสาร์-อาทิตย์": ["ลาว Extra", "นิเคอิเช้า VIP", "นอยอาเซียน", "จีนเช้า VIP", "ลาว TV", "ฮั่งเส็งเช้า VIP", "ฮานอย HD", "ไต้หวัน VIP", "ฮานอย STAR", "เกาหลี VIP", "นิเคอิบ่าย VIP", "ลาว HD", "ฮานอย TV", "จีนบ่าย VIP", "ฮั่งเส็งบ่าย VIP", "ลาวสตาร์", "ฮานอยกาชาด", "สิงคโปร์ VIP", "ฮานอยพิเศษ", "ฮานอยสามัคคี", "ฮานอยปกติ", "ฮานอย VIP", "ฮานอยพัฒนา", "ลาวสามัคคี", "ลาวอาเซียน", "ลาว VIP", "ลาวสามัคคี VIP", "อังกฤษ VIP", "ลาวสตาร์ VIP", "ฮานอย Extra", "เยอรมัน VIP", "ลาวกาชาด", "รัสเซีย VIP", "ดาวโจนส์ VIP", "ดาวโจนส์ STAR"]
     };
-    let currentFolder = "", currentIndex = 0, isLocked = false, selectedBox = null;
+    let currentFolder = "", currentIndex = 0, isLocked = false;
 
     function loadLotto(folder, index) { currentFolder = folder; currentIndex = index; document.getElementById('title').textContent = db[folder][index]; showPage('page-main'); genNumbers(); saveAll(); }
     function moveLotto(dir) { let newIndex = currentIndex + dir; if(newIndex >= 0 && newIndex < db[currentFolder].length) loadLotto(currentFolder, newIndex); }
@@ -98,7 +97,6 @@
         document.getElementById('m1').textContent = Math.floor(Math.random()*900+100); document.getElementById('m2').textContent = Math.floor(Math.random()*900+100); saveAll();
     }
 
-    // ฟังก์ชันวาดภาพใหม่ (ไม่ใช้ html2canvas)
     function downloadCanvas() {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
@@ -107,35 +105,24 @@
         img.onload = () => {
             canvas.width = img.width;
             canvas.height = img.height;
-            ctx.drawImage(img, 0, 0);
-            
-            // วาดข้อความจาก div แต่ละตัว
-            const boxes = document.querySelectorAll('.number-box');
-            boxes.forEach(box => {
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            document.querySelectorAll('.number-box').forEach(box => {
                 const style = window.getComputedStyle(box);
-                const rect = box.getBoundingClientRect();
-                const containerRect = document.getElementById('capture').getBoundingClientRect();
-                
-                // คำนวณตำแหน่งเทียบกับขนาดจริงของภาพ
-                const scaleX = canvas.width / containerRect.width;
-                const scaleY = canvas.height / containerRect.height;
-                
-                ctx.font = `${parseInt(style.fontSize) * scaleY}px ${style.fontFamily}`;
+                const x = parseFloat(box.style.left) / 100 * canvas.width;
+                const y = parseFloat(box.style.top) / 100 * canvas.height;
+                const fs = parseFloat(style.fontSize) * (canvas.width / 600);
+                ctx.font = `bold ${fs}px ${style.fontFamily}`;
                 ctx.fillStyle = box.id === 'den' ? 'red' : '#3a1a02';
                 ctx.textAlign = 'center';
-                ctx.fillText(box.textContent, (rect.left - containerRect.left + rect.width/2) * scaleX, (rect.top - containerRect.top + rect.height/1.2) * scaleY);
+                ctx.fillText(box.textContent, x + (parseFloat(box.style.width)/100 * canvas.width / 2), y + fs);
             });
             const link = document.createElement('a'); link.download = 'Lotto_' + Date.now() + '.png'; link.href = canvas.toDataURL("image/png"); link.click();
         };
     }
 
     interact('.number-box').draggable({ listeners: { move(e) { if(!isLocked) { const t=e.target; const x=(parseFloat(t.getAttribute('data-x'))||0)+e.dx; const y=(parseFloat(t.getAttribute('data-y'))||0)+e.dy; t.style.transform=`translate(${x}px, ${y}px)`; t.setAttribute('data-x', x); t.setAttribute('data-y', y); saveAll(); } } } });
-    document.querySelectorAll('.number-box').forEach(box => { box.addEventListener('mousedown', () => pressTimer = setTimeout(() => selectBox(box), 500)); box.addEventListener('touchstart', () => pressTimer = setTimeout(() => selectBox(box), 500)); box.addEventListener('mouseup', () => clearTimeout(pressTimer)); box.addEventListener('mouseleave', () => clearTimeout(pressTimer)); box.addEventListener('touchend', () => clearTimeout(pressTimer)); });
-    function selectBox(box) { document.querySelectorAll('.number-box').forEach(b => b.classList.remove('selected')); box.classList.add('selected'); selectedBox = box; document.getElementById('size-slider').value = parseInt(window.getComputedStyle(box).fontSize); }
-    document.body.addEventListener('click', (e) => { if(!e.target.classList.contains('number-box')) { document.querySelectorAll('.number-box').forEach(b => b.classList.remove('selected')); selectedBox = null; } });
-    function resizeSelected(v) { if(selectedBox) { selectedBox.style.fontSize = v + 'px'; saveAll(); } }
-    const menu = document.getElementById('menu'); Object.keys(db).forEach(f => { let b = document.createElement('button'); b.className='btn-folder'; b.textContent=f; let l = document.createElement('div'); l.className='lottery-list'; b.onclick = () => { document.querySelectorAll('.lottery-list').forEach(i=>i.classList.remove('active')); l.classList.add('active'); }; db[f].forEach((n, i) => { let s = document.createElement('button'); s.className='btn-lotto'; s.textContent=n; s.onclick = () => loadLotto(f, i); l.appendChild(s); }); menu.appendChild(b); menu.appendChild(l); });
     window.onload = loadAll;
+    const menu = document.getElementById('menu'); Object.keys(db).forEach(f => { let b = document.createElement('button'); b.className='btn-folder'; b.textContent=f; let l = document.createElement('div'); l.className='lottery-list'; b.onclick = () => { document.querySelectorAll('.lottery-list').forEach(i=>i.classList.remove('active')); l.classList.add('active'); }; db[f].forEach((n, i) => { let s = document.createElement('button'); s.className='btn-lotto'; s.textContent=n; s.onclick = () => loadLotto(f, i); l.appendChild(s); }); menu.appendChild(b); menu.appendChild(l); });
 </script>
 </body>
 </html>
