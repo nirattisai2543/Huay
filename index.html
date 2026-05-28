@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบสุ่มหวย Napas1805 - Final Complete Fixed</title>
+    <title>ระบบสุ่มหวย Napas1805</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Charmonman:wght@400;700&family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
@@ -20,26 +20,10 @@
         .lottery-list { display: none; flex-wrap: wrap; gap: 5px; justify-content: center; background: #1a1a1a; padding: 10px; border-radius: 10px; margin-bottom: 15px; }
         .lottery-list.active { display: flex; }
         .btn-lotto { padding: 8px 12px; background: #333; border: 1px solid #555; color: #fff; cursor: pointer; border-radius: 5px; font-size: 13px; }
-        
-        .container { 
-            position: relative; 
-            width: 100%; 
-            aspect-ratio: 2 / 3; 
-            background-image: url('20183.png'); 
-            background-size: 100% 100%; 
-            background-position: center; 
-            background-repeat: no-repeat;
-            border-radius: 10px; 
-            margin: 0 auto; 
-            overflow: hidden; 
-            box-sizing: border-box;
-        }
-        
+        .container { position: relative; width: 100%; aspect-ratio: 2 / 3; background-image: url('20183.png'); background-size: 100% 100%; background-position: center; background-repeat: no-repeat; border-radius: 10px; margin: 0 auto; overflow: hidden; box-sizing: border-box; }
         .number-box { position: absolute; font-weight: 700; color: #3a1a02; text-align: center; font-family: 'Charmonman'; touch-action: none; cursor: pointer; border: 2px solid transparent; box-sizing: border-box; user-select: none; }
         .number-box.selected { border: 2px solid #ffd700 !important; background: rgba(255, 255, 255, 0.1); }
-        
         #result-img { width: 100%; margin-top: 20px; border-radius: 10px; border: none; display: none; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-        
         .date-control { background: #222; padding: 10px; border-radius: 10px; border: 1px solid #b8860b; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         #btn-top { display: none; width: 100%; margin-top: 15px; background: #555; padding: 15px; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; border: none; }
     </style>
@@ -100,24 +84,19 @@
     };
     let currentFolder = "", currentIndex = 0, isLocked = false, selectedBox = null;
 
-    // แก้บั๊กแก้ปัญหาโหลดลอตเตอรี่แล้วสุ่มทับของเดิมที่เซฟไว้
     function loadLotto(folder, index, autoGen = true) { 
         currentFolder = folder; 
         currentIndex = index; 
         document.getElementById('title').textContent = db[folder][index]; 
         showPage('page-main'); 
         updateDateUI();
-        if(autoGen) {
-            genNumbers(); 
-        }
+        if(autoGen) genNumbers(); 
         saveAll(); 
     }
     
     function moveLotto(dir) { 
         let newIndex = currentIndex + dir; 
-        if(newIndex >= 0 && newIndex < db[currentFolder].length) {
-            loadLotto(currentFolder, newIndex, true); 
-        }
+        if(newIndex >= 0 && newIndex < db[currentFolder].length) loadLotto(currentFolder, newIndex, true); 
     }
     
     function updateDateUI() { 
@@ -129,16 +108,9 @@
     function saveAll() { 
         const state = {}; 
         document.querySelectorAll('.number-box').forEach(b => { 
-            state[b.id] = { 
-                x: b.getAttribute('data-x') || 0, 
-                y: b.getAttribute('data-y') || 0, 
-                fs: b.style.fontSize, 
-                txt: b.textContent 
-            }; 
+            state[b.id] = { x: b.getAttribute('data-x') || 0, y: b.getAttribute('data-y') || 0, fs: b.style.fontSize, txt: b.textContent }; 
         }); 
-        state['date'] = currentDate.toString(); 
-        state['folder'] = currentFolder; 
-        state['index'] = currentIndex; 
+        state['date'] = currentDate.toString(); state['folder'] = currentFolder; state['index'] = currentIndex; 
         localStorage.setItem('napas_save', JSON.stringify(state)); 
     }
     
@@ -146,92 +118,49 @@
         const save = JSON.parse(localStorage.getItem('napas_save')); 
         if(save) { 
             currentDate = new Date(save.date); 
-            currentFolder = save.folder; 
-            currentIndex = save.index; 
-            
-            // สั่งโหลดหน้า Main ค้างไว้ตามเซฟล่าสุด แต่ไม่สั่งสุ่มเลขใหม่ทับ
-            loadLotto(currentFolder, currentIndex, false);
-
+            currentFolder = save.folder; currentIndex = save.index; 
+            document.getElementById('title').textContent = db[currentFolder][currentIndex];
             Object.keys(save).forEach(id => { 
                 if(['date','folder','index'].includes(id)) return; 
                 const el = document.getElementById(id); 
                 if(el) { 
-                    const posX = parseFloat(save[id].x) || 0;
-                    const posY = parseFloat(save[id].y) || 0;
-                    el.style.transform = `translate(${posX}px, ${posY}px)`; 
-                    el.setAttribute('data-x', posX); 
-                    el.setAttribute('data-y', posY); 
-                    el.style.fontSize = save[id].fs; 
-                    el.textContent = save[id].txt; 
+                    const x = parseFloat(save[id].x) || 0, y = parseFloat(save[id].y) || 0;
+                    el.style.transform = `translate(${x}px, ${y}px)`; 
+                    el.setAttribute('data-x', x); el.setAttribute('data-y', y); 
+                    el.style.fontSize = save[id].fs; el.textContent = save[id].txt; 
                 } 
             }); 
-        } else {
-            updateDateUI();
-        }
+        } else { updateDateUI(); }
     }
     
     function showPage(p) { 
         document.getElementById('page-menu').style.display = p=='page-menu'?'block':'none'; 
         document.getElementById('page-main').style.display = p=='page-main'?'block':'none'; 
-        if(p == 'page-menu') {
-            // เคลียร์ค่าค้นหาเมื่อกลับหน้าเมนู
-            document.querySelector('.search-input').value = '';
-            filterLottery('');
-        }
+        if(p == 'page-main') loadAll();
     }
     
     function resetAll() { localStorage.removeItem('napas_save'); location.reload(); }
     function adjustDate(d) { currentDate.setDate(currentDate.getDate() + d); updateDateUI(); saveAll(); }
-    
     function prepareImage() { 
         document.querySelectorAll('.number-box').forEach(b => b.classList.remove('selected')); 
-        const target = document.getElementById('capture');
-        
-        html2canvas(target, { 
-            scale: 3, 
-            useCORS: true, 
-            allowTaint: true,
-            logging: false,
-            backgroundColor: null 
-        }).then(canvas => { 
+        html2canvas(document.getElementById('capture'), { scale: 3 }).then(canvas => { 
             const img = document.getElementById('result-img'); 
-            img.src = canvas.toDataURL("image/png"); 
-            img.style.display = 'block'; 
+            img.src = canvas.toDataURL("image/png"); img.style.display = 'block'; 
             document.getElementById('btn-top').style.display = 'block';
-            setTimeout(() => {
-                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-            }, 100);
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
         }); 
     }
     
-    // แก้บั๊กฟังก์ชันสืบค้น: ให้กาง Folder ออกอัตโนมัติเมื่อเจอคำค้นหา
     function filterLottery(q) { 
         q = q.toLowerCase(); 
-        document.querySelectorAll('.btn-folder').forEach(folderBtn => {
-            let list = folderBtn.nextElementSibling;
-            let hasMatch = false;
-            
-            list.querySelectorAll('.btn-lotto').forEach(b => { 
-                if(b.textContent.toLowerCase().includes(q)) {
-                    b.style.display = "block";
-                    hasMatch = true;
-                } else {
-                    b.style.display = "none";
-                }
+        document.querySelectorAll('.btn-folder').forEach(f => {
+            let l = f.nextElementSibling, has = false;
+            l.querySelectorAll('.btn-lotto').forEach(b => { 
+                let m = b.textContent.toLowerCase().includes(q);
+                b.style.display = m ? "block" : "none"; if(m) has = true;
             }); 
-            
-            if(q !== "") {
-                if(hasMatch) {
-                    list.classList.add('active');
-                    folderBtn.style.display = "block";
-                } else {
-                    list.classList.remove('active');
-                    folderBtn.style.display = "none";
-                }
-            } else {
-                list.classList.remove('active');
-                folderBtn.style.display = "block";
-            }
+            f.style.display = (q === "" || has) ? "block" : "none";
+            if(q !== "" && has) l.classList.add('active'); else l.classList.remove('active');
         });
     }
     
@@ -242,8 +171,7 @@
     }
     
     function genNumbers() {
-        let w1, w2, den;
-        w1 = Math.floor(Math.random()*10);
+        let w1 = Math.floor(Math.random()*10), w2, den;
         do { w2 = Math.floor(Math.random()*10); } while (w2 === w1);
         do { den = Math.floor(Math.random()*10); } while (den === w1 || den === w2);
         document.getElementById('wing').textContent = w1 + " - " + w2;
@@ -251,66 +179,34 @@
         const s = [w1, w2, den];
         document.querySelectorAll('#t1, #t2, #t3').forEach(el => {
             const p = s[Math.floor(Math.random()*s.length)];
-            const o = Math.floor(Math.random()*10);
-            el.textContent = Math.random() > 0.5 ? (p.toString()+o) : (o.toString()+p);
+            el.textContent = Math.random() > 0.5 ? (p.toString() + Math.floor(Math.random()*10)) : (Math.floor(Math.random()*10).toString() + p);
         });
         document.getElementById('m1').textContent = Math.floor(Math.random()*900+100);
         document.getElementById('m2').textContent = Math.floor(Math.random()*900+100);
         saveAll();
     }
 
-    // แก้ไขพิกัด parseFloat ป้องกันการดึงค่าเป็น NaN หรือ String ต่อกัน
-    interact('.number-box').draggable({ 
-        listeners: { 
-            move(e) { 
-                if(!isLocked) { 
-                    const t = e.target; 
-                    const x = (parseFloat(t.getAttribute('data-x')) || 0) + e.dx; 
-                    const y = (parseFloat(t.getAttribute('data-y')) || 0) + e.dy; 
-                    t.style.transform = `translate(${x}px, ${y}px)`; 
-                    t.setAttribute('data-x', x); 
-                    t.setAttribute('data-y', y); 
-                    saveAll(); 
-                } 
-            } 
-        } 
-    });
+    interact('.number-box').draggable({ listeners: { move(e) { if(!isLocked) { 
+        const x = (parseFloat(e.target.getAttribute('data-x')) || 0) + e.dx, y = (parseFloat(e.target.getAttribute('data-y')) || 0) + e.dy; 
+        e.target.style.transform = `translate(${x}px, ${y}px)`; 
+        e.target.setAttribute('data-x', x); e.target.setAttribute('data-y', y); saveAll(); 
+    }} }});
     
     document.querySelectorAll('.number-box').forEach(box => { 
-        box.onclick = (e) => { 
-            e.stopPropagation(); 
-            document.querySelectorAll('.number-box').forEach(b => b.classList.remove('selected')); 
-            box.classList.add('selected'); 
-            selectedBox = box; 
-            document.getElementById('size-slider').value = parseInt(window.getComputedStyle(box).fontSize); 
-        }; 
+        box.onclick = (e) => { e.stopPropagation(); document.querySelectorAll('.number-box').forEach(b => b.classList.remove('selected')); box.classList.add('selected'); selectedBox = box; document.getElementById('size-slider').value = parseInt(window.getComputedStyle(box).fontSize); }; 
     });
     
-    document.body.addEventListener('click', () => { 
-        document.querySelectorAll('.number-box').forEach(b => b.classList.remove('selected')); 
-        selectedBox = null; 
-    });
-    
+    document.body.addEventListener('click', () => { document.querySelectorAll('.number-box').forEach(b => b.classList.remove('selected')); selectedBox = null; });
     function resizeSelected(v) { if(selectedBox) { selectedBox.style.fontSize = v + 'px'; saveAll(); } }
     
     const menu = document.getElementById('menu'); 
     Object.keys(db).forEach(f => { 
         let b = document.createElement('button'); b.className = 'btn-folder'; b.textContent = f; 
         let l = document.createElement('div'); l.className = 'lottery-list'; 
-        b.onclick = () => { 
-            const isActive = l.classList.contains('active');
-            document.querySelectorAll('.lottery-list').forEach(i => i.classList.remove('active')); 
-            if(!isActive) l.classList.add('active'); 
-        }; 
-        db[f].forEach((n, i) => { 
-            let s = document.createElement('button'); s.className = 'btn-lotto'; s.textContent = n; 
-            s.onclick = () => loadLotto(f, i, true); 
-            l.appendChild(s); 
-        }); 
+        b.onclick = () => { document.querySelectorAll('.lottery-list').forEach(i => i !== l ? i.classList.remove('active') : null); l.classList.toggle('active'); }; 
+        db[f].forEach((n, i) => { let s = document.createElement('button'); s.className = 'btn-lotto'; s.textContent = n; s.onclick = () => loadLotto(f, i, true); l.appendChild(s); }); 
         menu.appendChild(b); menu.appendChild(l); 
     });
-    
-    window.onload = loadAll;
 </script>
 </body>
 </html>
