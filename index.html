@@ -13,7 +13,7 @@
         .button-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
         .btn-action { padding: 12px; font-size: 14px; font-weight: bold; border: none; border-radius: 10px; cursor: pointer; color: #fff; }
         .full-width { grid-column: span 2; }
-        .nav-grid { display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 8px; margin-bottom: 10px; }
+        .nav-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
         .search-input { width: 90%; padding: 12px; margin: 0 auto 15px; display: block; border-radius: 25px; border: 1px solid #b8860b; background: #222; color: white; text-align: center; }
         .btn-folder { width: 100%; padding: 15px; background: #222; border: 2px solid #b8860b; color: #ffd700; border-radius: 12px; margin-bottom: 10px; cursor: pointer; font-size: 16px; font-weight: bold; }
         .lottery-list { display: none; flex-wrap: wrap; gap: 5px; justify-content: center; background: #1a1a1a; padding: 10px; border-radius: 10px; margin-bottom: 15px; }
@@ -33,21 +33,14 @@
 </div>
 
 <div id="page-main">
-    <div class="nav-grid">
-        <button class="btn-action" style="background:#555;" onclick="moveLotto(-1)">◀ ก่อนหน้า</button>
-        <button class="btn-action" style="background:#444;" onclick="showPage('page-menu')">เมนูหลัก</button>
-        <button class="btn-action" style="background:#555;" onclick="moveLotto(1)">ถัดไป ▶</button>
-    </div>
+    <button class="btn-action" style="background:#444; width:100%; margin-bottom:10px;" onclick="showPage('page-menu')">⬅ กลับไปเมนูหลัก</button>
+    
     <div class="date-control">
         <button onclick="adjustDate(-1)" style="border:none; background:#b8860b; color:white; padding:10px 20px; border-radius:5px; cursor:pointer;">- วัน</button>
         <span id="date-label" style="font-size:18px; font-weight:bold;"></span>
         <button onclick="adjustDate(1)" style="border:none; background:#b8860b; color:white; padding:10px 20px; border-radius:5px; cursor:pointer;">+ วัน</button>
     </div>
-    <div class="button-grid">
-        <button class="btn-action full-width" style="background:linear-gradient(45deg, #b8860b, #ffd700); color:#000;" onclick="genNumbers()">สุ่มเลขนำโชค</button>
-        <button class="btn-action" id="lock-btn" onclick="toggleLock()" style="background:#333;">🔓 ปลดล็อค</button>
-        <button class="btn-action" style="background:#cc0000;" onclick="resetAll()">🔄 รีเซ็ตทั้งหมด</button>
-    </div>
+
     <div class="container" id="capture" onclick="exportCanvas()">
         <div id="title" class="number-box" style="top:35%; left:5%; width:90%; font-size:40px;">หวย</div>
         <div id="line" class="number-box" style="top:25%; left:45%; width:40%; font-size:13px; color:white; font-family:Sarabun;">napas1805</div>
@@ -60,16 +53,20 @@
         <div id="m1" class="number-box" style="top:86%; left:15%; width:30%; font-size:40px;">...</div>
         <div id="m2" class="number-box" style="top:86%; left:55%; width:30%; font-size:40px;">...</div>
     </div>
+
+    <div class="button-grid" style="margin-top:15px;">
+        <button class="btn-action full-width" style="background:linear-gradient(45deg, #b8860b, #ffd700); color:#000;" onclick="genNumbers()">สุ่มเลขนำโชค</button>
+        <button class="btn-action" style="background:#555;" onclick="moveLotto(-1)">◀ ก่อนหน้า</button>
+        <button class="btn-action" style="background:#555;" onclick="moveLotto(1)">ถัดไป ▶</button>
+        <button class="btn-action" id="lock-btn" onclick="toggleLock()" style="background:#333;">🔓 ปลดล็อค</button>
+        <button class="btn-action" style="background:#cc0000;" onclick="resetAll()">🔄 รีเซ็ต</button>
+    </div>
 </div>
 
 <script>
     const db = {
-        "หวย จันทร์-ศุกร์": [
-            {n:"ลาว Extra", f:"la"}, {n:"นิเคอิเช้า VIP", f:"jp"}, {n:"นอยอาเซียน", f:"vn"}, {n:"นิเคอิเช้า", f:"jp"}, {n:"จีนเช้า VIP", f:"cn"}, {n:"จีนเช้า", f:"cn"}, {n:"ลาว TV", f:"la"}, {n:"ฮั่งเส็งเช้า VIP", f:"hk"}, {n:"ฮั่งเส็งเช้า", f:"hk"}, {n:"ฮานอย HD", f:"vn"}, {n:"ไต้หวัน VIP", f:"tw"}, {n:"ฮานอย STAR", f:"vn"}, {n:"ไต้หวัน", f:"tw"}, {n:"เกาหลี", f:"kr"}, {n:"เกาหลี VIP", f:"kr"}, {n:"นิเคอิบ่าย", f:"jp"}, {n:"นิเคอิบ่าย VIP", f:"jp"}, {n:"ลาว HD", f:"la"}, {n:"จีนบ่าย", f:"cn"}, {n:"ฮานอย TV", f:"vn"}, {n:"จีนบ่าย VIP", f:"cn"}, {n:"ฮั่งเส็งบ่าย", f:"hk"}, {n:"ฮั่งเส็งบ่าย VIP", f:"hk"}, {n:"ลาวสตาร์", f:"la"}, {n:"สิงคโปร์", f:"sg"}, {n:"ไทยเย็น", f:"th"}, {n:"ฮานอยกาชาด", f:"vn"}, {n:"อินเดีย", f:"in"}, {n:"สิงคโปร์ VIP", f:"sg"}, {n:"อียิปต์", f:"eg"}, {n:"ฮานอยสามัคคี", f:"vn"}, {n:"ฮานอยพิเศษ", f:"vn"}, {n:"ฮานอยปกติ", f:"vn"}, {n:"ฮานอย VIP", f:"vn"}, {n:"ฮานอยพัฒนา", f:"vn"}, {n:"ลาวพัฒนา", f:"la"}, {n:"ลาวสามัคคี", f:"la"}, {n:"ลาวอาเซียน", f:"la"}, {n:"ลาว VIP", f:"la"}, {n:"ลาวสามัคคี VIP", f:"la"}, {n:"อังกฤษ VIP", f:"gb"}, {n:"ลาวสตาร์ VIP", f:"la"}, {n:"ฮานอย Extra", f:"vn"}, {n:"อังกฤษ", f:"gb"}, {n:"เยอรมัน", f:"de"}, {n:"รัสเซีย", f:"ru"}, {n:"เยอรมัน VIP", f:"de"}, {n:"ลาวกาชาด", f:"la"}, {n:"รัสเซีย VIP", f:"ru"}, {n:"ดาวโจนส์ VIP", f:"us"}, {n:"ดาวโจนส์ STAR", f:"us"}, {n:"ดาวโจนส์", f:"us"}
-        ],
-        "หวย เสาร์-อาทิตย์": [
-            {n:"ลาว Extra", f:"la"}, {n:"นิเคอิเช้า VIP", f:"jp"}, {n:"นอยอาเซียน", f:"vn"}, {n:"จีนเช้า VIP", f:"cn"}, {n:"ลาว TV", f:"la"}, {n:"ฮั่งเส็งเช้า VIP", f:"hk"}, {n:"ฮานอย HD", f:"vn"}, {n:"ไต้หวัน VIP", f:"tw"}, {n:"ฮานอย STAR", f:"vn"}, {n:"เกาหลี VIP", f:"kr"}, {n:"นิเคอิบ่าย VIP", f:"jp"}, {n:"ลาว HD", f:"la"}, {n:"ฮานอย TV", f:"vn"}, {n:"จีนบ่าย VIP", f:"cn"}, {n:"ฮั่งเส็งบ่าย VIP", f:"hk"}, {n:"ลาวสตาร์", f:"la"}, {n:"ฮานอยกาชาด", f:"vn"}, {n:"สิงคโปร์ VIP", f:"sg"}, {n:"ฮานอยพิเศษ", f:"vn"}, {n:"ฮานอยสามัคคี", f:"vn"}, {n:"ฮานอยปกติ", f:"vn"}, {n:"ฮานอย VIP", f:"vn"}, {n:"ฮานอยพัฒนา", f:"vn"}, {n:"ลาวสามัคคี", f:"la"}, {n:"ลาวอาเซียน", f:"la"}, {n:"ลาว VIP", f:"la"}, {n:"ลาวสามัคคี VIP", f:"la"}, {n:"อังกฤษ VIP", f:"gb"}, {n:"ลาวสตาร์ VIP", f:"la"}, {n:"ฮานอย Extra", f:"vn"}, {n:"เยอรมัน VIP", f:"de"}, {n:"ลาวกาชาด", f:"la"}, {n:"รัสเซีย VIP", f:"ru"}, {n:"ดาวโจนส์ VIP", f:"us"}, {n:"ดาวโจนส์ STAR", f:"us"}
-        ]
+        "หวย จันทร์-ศุกร์": [{n:"ลาว Extra", f:"la"}, {n:"นิเคอิเช้า VIP", f:"jp"}, {n:"นอยอาเซียน", f:"vn"}, {n:"นิเคอิเช้า", f:"jp"}, {n:"จีนเช้า VIP", f:"cn"}, {n:"จีนเช้า", f:"cn"}, {n:"ลาว TV", f:"la"}, {n:"ฮั่งเส็งเช้า VIP", f:"hk"}, {n:"ฮั่งเส็งเช้า", f:"hk"}, {n:"ฮานอย HD", f:"vn"}, {n:"ไต้หวัน VIP", f:"tw"}, {n:"ฮานอย STAR", f:"vn"}, {n:"ไต้หวัน", f:"tw"}, {n:"เกาหลี", f:"kr"}, {n:"เกาหลี VIP", f:"kr"}, {n:"นิเคอิบ่าย", f:"jp"}, {n:"นิเคอิบ่าย VIP", f:"jp"}, {n:"ลาว HD", f:"la"}, {n:"จีนบ่าย", f:"cn"}, {n:"ฮานอย TV", f:"vn"}, {n:"จีนบ่าย VIP", f:"cn"}, {n:"ฮั่งเส็งบ่าย", f:"hk"}, {n:"ฮั่งเส็งบ่าย VIP", f:"hk"}, {n:"ลาวสตาร์", f:"la"}, {n:"สิงคโปร์", f:"sg"}, {n:"ไทยเย็น", f:"th"}, {n:"ฮานอยกาชาด", f:"vn"}, {n:"อินเดีย", f:"in"}, {n:"สิงคโปร์ VIP", f:"sg"}, {n:"อียิปต์", f:"eg"}, {n:"ฮานอยสามัคคี", f:"vn"}, {n:"ฮานอยพิเศษ", f:"vn"}, {n:"ฮานอยปกติ", f:"vn"}, {n:"ฮานอย VIP", f:"vn"}, {n:"ฮานอยพัฒนา", f:"vn"}, {n:"ลาวพัฒนา", f:"la"}, {n:"ลาวสามัคคี", f:"la"}, {n:"ลาวอาเซียน", f:"la"}, {n:"ลาว VIP", f:"la"}, {n:"ลาวสามัคคี VIP", f:"la"}, {n:"อังกฤษ VIP", f:"gb"}, {n:"ลาวสตาร์ VIP", f:"la"}, {n:"ฮานอย Extra", f:"vn"}, {n:"อังกฤษ", f:"gb"}, {n:"เยอรมัน", f:"de"}, {n:"รัสเซีย", f:"ru"}, {n:"เยอรมัน VIP", f:"de"}, {n:"ลาวกาชาด", f:"la"}, {n:"รัสเซีย VIP", f:"ru"}, {n:"ดาวโจนส์ VIP", f:"us"}, {n:"ดาวโจนส์ STAR", f:"us"}, {n:"ดาวโจนส์", f:"us"}],
+        "หวย เสาร์-อาทิตย์": [{n:"ลาว Extra", f:"la"}, {n:"นิเคอิเช้า VIP", f:"jp"}, {n:"นอยอาเซียน", f:"vn"}, {n:"จีนเช้า VIP", f:"cn"}, {n:"ลาว TV", f:"la"}, {n:"ฮั่งเส็งเช้า VIP", f:"hk"}, {n:"ฮานอย HD", f:"vn"}, {n:"ไต้หวัน VIP", f:"tw"}, {n:"ฮานอย STAR", f:"vn"}, {n:"เกาหลี VIP", f:"kr"}, {n:"นิเคอิบ่าย VIP", f:"jp"}, {n:"ลาว HD", f:"la"}, {n:"ฮานอย TV", f:"vn"}, {n:"จีนบ่าย VIP", f:"cn"}, {n:"ฮั่งเส็งบ่าย VIP", f:"hk"}, {n:"ลาวสตาร์", f:"la"}, {n:"ฮานอยกาชาด", f:"vn"}, {n:"สิงคโปร์ VIP", f:"sg"}, {n:"ฮานอยพิเศษ", f:"vn"}, {n:"ฮานอยสามัคคี", f:"vn"}, {n:"ฮานอยปกติ", f:"vn"}, {n:"ฮานอย VIP", f:"vn"}, {n:"ฮานอยพัฒนา", f:"vn"}, {n:"ลาวสามัคคี", f:"la"}, {n:"ลาวอาเซียน", f:"la"}, {n:"ลาว VIP", f:"la"}, {n:"ลาวสามัคคี VIP", f:"la"}, {n:"อังกฤษ VIP", f:"gb"}, {n:"ลาวสตาร์ VIP", f:"la"}, {n:"ฮานอย Extra", f:"vn"}, {n:"เยอรมัน VIP", f:"de"}, {n:"ลาวกาชาด", f:"la"}, {n:"รัสเซีย VIP", f:"ru"}, {n:"ดาวโจนส์ VIP", f:"us"}, {n:"ดาวโจนส์ STAR", f:"us"}]
     };
 
     let curF = "หวย จันทร์-ศุกร์", curI = 0, isLocked = false, curDate = new Date();
