@@ -18,7 +18,7 @@
         .btn-folder { width: 100%; padding: 15px; background: #222; border: 2px solid #b8860b; color: #ffd700; border-radius: 12px; margin-bottom: 10px; cursor: pointer; font-size: 16px; font-weight: bold; }
         .lottery-list { display: none; flex-wrap: wrap; gap: 5px; justify-content: center; background: #1a1a1a; padding: 10px; border-radius: 10px; margin-bottom: 15px; }
         .lottery-list.active { display: flex; }
-        .btn-lotto { padding: 8px 12px; background: #333; border: 1px solid #555; color: #fff; cursor: pointer; border-radius: 5px; font-size: 13px; }
+        .btn-lotto { padding: 8px 12px; background: #333; border: 1px solid #555; color: #fff; cursor: pointer; border-radius: 5px; font-size: 13px; display: flex; align-items: center; gap: 8px; }
         .container { position: relative; width: 100%; aspect-ratio: 2 / 3; background-image: url('20183.png'); background-size: cover; background-position: center; border-radius: 10px; margin: 0 auto; overflow: hidden; cursor: pointer; }
         .number-box { position: absolute; font-weight: 700; color: #3a1a02; text-align: center; font-family: 'Charmonman'; touch-action: none; cursor: pointer; border: 2px solid transparent; }
         .date-control { background: #222; padding: 10px; border-radius: 10px; border: 1px solid #b8860b; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
@@ -38,19 +38,16 @@
         <button class="btn-action" style="background:#444;" onclick="showPage('page-menu')">เมนูหลัก</button>
         <button class="btn-action" style="background:#555;" onclick="moveLotto(1)">ถัดไป ▶</button>
     </div>
-    
     <div class="date-control">
         <button onclick="adjustDate(-1)" style="border:none; background:#b8860b; color:white; padding:10px 20px; border-radius:5px; cursor:pointer;">- วัน</button>
         <span id="date-label" style="font-size:18px; font-weight:bold;"></span>
         <button onclick="adjustDate(1)" style="border:none; background:#b8860b; color:white; padding:10px 20px; border-radius:5px; cursor:pointer;">+ วัน</button>
     </div>
-
     <div class="button-grid">
         <button class="btn-action full-width" style="background:linear-gradient(45deg, #b8860b, #ffd700); color:#000;" onclick="genNumbers()">สุ่มเลขนำโชค</button>
         <button class="btn-action" id="lock-btn" onclick="toggleLock()" style="background:#333;">🔓 ปลดล็อค</button>
         <button class="btn-action" style="background:#cc0000;" onclick="resetAll()">🔄 รีเซ็ตทั้งหมด</button>
     </div>
-    
     <div class="container" id="capture" onclick="exportCanvas()">
         <div id="title" class="number-box" style="top:35%; left:5%; width:90%; font-size:40px;">หวย</div>
         <div id="line" class="number-box" style="top:25%; left:45%; width:40%; font-size:13px; color:white; font-family:Sarabun;">napas1805</div>
@@ -67,8 +64,12 @@
 
 <script>
     const db = {
-        "หวย จันทร์-ศุกร์": ["ลาว Extra", "นิเคอิเช้า VIP", "นอยอาเซียน", "นิเคอิเช้า", "จีนเช้า VIP", "จีนเช้า", "ลาว TV", "ฮั่งเส็งเช้า VIP", "ฮั่งเส็งเช้า", "ฮานอย HD", "ไต้หวัน VIP", "ฮานอย STAR", "ไต้หวัน", "เกาหลี", "เกาหลี VIP", "นิเคอิบ่าย", "นิเคอิบ่าย VIP", "ลาว HD", "จีนบ่าย", "ฮานอย TV", "จีนบ่าย VIP", "ฮั่งเส็งบ่าย", "ฮั่งเส็งบ่าย VIP", "ลาวสตาร์", "สิงคโปร์", "ไทยเย็น", "ฮานอยกาชาด", "อินเดีย", "สิงคโปร์ VIP", "อียิปต์", "ฮานอยสามัคคี", "ฮานอยพิเศษ", "ฮานอยปกติ", "ฮานอย VIP", "ฮานอยพัฒนา", "ลาวพัฒนา", "ลาวสามัคคี", "ลาวอาเซียน", "ลาว VIP", "ลาวสามัคคี VIP", "อังกฤษ VIP", "ลาวสตาร์ VIP", "ฮานอย Extra", "อังกฤษ", "เยอรมัน", "รัสเซีย", "เยอรมัน VIP", "ลาวกาชาด", "รัสเซีย VIP", "ดาวโจนส์ VIP", "ดาวโจนส์ STAR", "ดาวโจนส์"],
-        "หวย เสาร์-อาทิตย์": ["ลาว Extra", "นิเคอิเช้า VIP", "นอยอาเซียน", "จีนเช้า VIP", "ลาว TV", "ฮั่งเส็งเช้า VIP", "ฮานอย HD", "ไต้หวัน VIP", "ฮานอย STAR", "เกาหลี VIP", "นิเคอิบ่าย VIP", "ลาว HD", "ฮานอย TV", "จีนบ่าย VIP", "ฮั่งเส็งบ่าย VIP", "ลาวสตาร์", "ฮานอยกาชาด", "สิงคโปร์ VIP", "ฮานอยพิเศษ", "ฮานอยสามัคคี", "ฮานอยปกติ", "ฮานอย VIP", "ฮานอยพัฒนา", "ลาวสามัคคี", "ลาวอาเซียน", "ลาว VIP", "ลาวสามัคคี VIP", "อังกฤษ VIP", "ลาวสตาร์ VIP", "ฮานอย Extra", "เยอรมัน VIP", "ลาวกาชาด", "รัสเซีย VIP", "ดาวโจนส์ VIP", "ดาวโจนส์ STAR"]
+        "หวย จันทร์-ศุกร์": [
+            {n:"ลาว Extra", f:"la"}, {n:"นิเคอิเช้า VIP", f:"jp"}, {n:"นอยอาเซียน", f:"vn"}, {n:"นิเคอิเช้า", f:"jp"}, {n:"จีนเช้า VIP", f:"cn"}, {n:"จีนเช้า", f:"cn"}, {n:"ลาว TV", f:"la"}, {n:"ฮั่งเส็งเช้า VIP", f:"hk"}, {n:"ฮั่งเส็งเช้า", f:"hk"}, {n:"ฮานอย HD", f:"vn"}, {n:"ไต้หวัน VIP", f:"tw"}, {n:"ฮานอย STAR", f:"vn"}, {n:"ไต้หวัน", f:"tw"}, {n:"เกาหลี", f:"kr"}, {n:"เกาหลี VIP", f:"kr"}, {n:"นิเคอิบ่าย", f:"jp"}, {n:"นิเคอิบ่าย VIP", f:"jp"}, {n:"ลาว HD", f:"la"}, {n:"จีนบ่าย", f:"cn"}, {n:"ฮานอย TV", f:"vn"}, {n:"จีนบ่าย VIP", f:"cn"}, {n:"ฮั่งเส็งบ่าย", f:"hk"}, {n:"ฮั่งเส็งบ่าย VIP", f:"hk"}, {n:"ลาวสตาร์", f:"la"}, {n:"สิงคโปร์", f:"sg"}, {n:"ไทยเย็น", f:"th"}, {n:"ฮานอยกาชาด", f:"vn"}, {n:"อินเดีย", f:"in"}, {n:"สิงคโปร์ VIP", f:"sg"}, {n:"อียิปต์", f:"eg"}, {n:"ฮานอยสามัคคี", f:"vn"}, {n:"ฮานอยพิเศษ", f:"vn"}, {n:"ฮานอยปกติ", f:"vn"}, {n:"ฮานอย VIP", f:"vn"}, {n:"ฮานอยพัฒนา", f:"vn"}, {n:"ลาวพัฒนา", f:"la"}, {n:"ลาวสามัคคี", f:"la"}, {n:"ลาวอาเซียน", f:"la"}, {n:"ลาว VIP", f:"la"}, {n:"ลาวสามัคคี VIP", f:"la"}, {n:"อังกฤษ VIP", f:"gb"}, {n:"ลาวสตาร์ VIP", f:"la"}, {n:"ฮานอย Extra", f:"vn"}, {n:"อังกฤษ", f:"gb"}, {n:"เยอรมัน", f:"de"}, {n:"รัสเซีย", f:"ru"}, {n:"เยอรมัน VIP", f:"de"}, {n:"ลาวกาชาด", f:"la"}, {n:"รัสเซีย VIP", f:"ru"}, {n:"ดาวโจนส์ VIP", f:"us"}, {n:"ดาวโจนส์ STAR", f:"us"}, {n:"ดาวโจนส์", f:"us"}
+        ],
+        "หวย เสาร์-อาทิตย์": [
+            {n:"ลาว Extra", f:"la"}, {n:"นิเคอิเช้า VIP", f:"jp"}, {n:"นอยอาเซียน", f:"vn"}, {n:"จีนเช้า VIP", f:"cn"}, {n:"ลาว TV", f:"la"}, {n:"ฮั่งเส็งเช้า VIP", f:"hk"}, {n:"ฮานอย HD", f:"vn"}, {n:"ไต้หวัน VIP", f:"tw"}, {n:"ฮานอย STAR", f:"vn"}, {n:"เกาหลี VIP", f:"kr"}, {n:"นิเคอิบ่าย VIP", f:"jp"}, {n:"ลาว HD", f:"la"}, {n:"ฮานอย TV", f:"vn"}, {n:"จีนบ่าย VIP", f:"cn"}, {n:"ฮั่งเส็งบ่าย VIP", f:"hk"}, {n:"ลาวสตาร์", f:"la"}, {n:"ฮานอยกาชาด", f:"vn"}, {n:"สิงคโปร์ VIP", f:"sg"}, {n:"ฮานอยพิเศษ", f:"vn"}, {n:"ฮานอยสามัคคี", f:"vn"}, {n:"ฮานอยปกติ", f:"vn"}, {n:"ฮานอย VIP", f:"vn"}, {n:"ฮานอยพัฒนา", f:"vn"}, {n:"ลาวสามัคคี", f:"la"}, {n:"ลาวอาเซียน", f:"la"}, {n:"ลาว VIP", f:"la"}, {n:"ลาวสามัคคี VIP", f:"la"}, {n:"อังกฤษ VIP", f:"gb"}, {n:"ลาวสตาร์ VIP", f:"la"}, {n:"ฮานอย Extra", f:"vn"}, {n:"เยอรมัน VIP", f:"de"}, {n:"ลาวกาชาด", f:"la"}, {n:"รัสเซีย VIP", f:"ru"}, {n:"ดาวโจนส์ VIP", f:"us"}, {n:"ดาวโจนส์ STAR", f:"us"}
+        ]
     };
 
     let curF = "หวย จันทร์-ศุกร์", curI = 0, isLocked = false, curDate = new Date();
@@ -92,7 +93,7 @@
         };
     }
 
-    function loadLotto(f, i) { curF = f; curI = i; document.getElementById('title').textContent = db[f][i]; showPage('page-main'); genNumbers(); save(); }
+    function loadLotto(f, i) { curF = f; curI = i; document.getElementById('title').textContent = db[f][i].n; showPage('page-main'); genNumbers(); save(); }
     function showPage(p) { document.getElementById('page-menu').style.display = p=='page-menu'?'block':'none'; document.getElementById('page-main').style.display = p=='page-main'?'block':'none'; }
     function moveLotto(d) { curI += d; if(curI < 0) curI = 0; if(curI >= db[curF].length) curI = db[curF].length - 1; loadLotto(curF, curI); }
     function adjustDate(d) { curDate.setDate(curDate.getDate() + d); const s = curDate.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' }); document.getElementById('date-label').textContent = s; document.getElementById('date-display').textContent = s; save(); }
@@ -108,7 +109,19 @@
     function resetAll() { localStorage.removeItem('napas'); location.reload(); }
     function filterLottery(q) { document.querySelectorAll('.btn-lotto').forEach(b => b.style.display = b.textContent.toLowerCase().includes(q.toLowerCase()) ? "block" : "none"); }
     interact('.number-box').draggable({ listeners: { move(e) { if(!isLocked) { const t=e.target; const x=(parseFloat(t.getAttribute('data-x'))||0)+e.dx; const y=(parseFloat(t.getAttribute('data-y'))||0)+e.dy; t.style.transform=`translate(${x}px, ${y}px)`; t.setAttribute('data-x', x); t.setAttribute('data-y', y); save(); } } } });
-    Object.keys(db).forEach(f => { let b=document.createElement('button'); b.className='btn-folder'; b.textContent=f; let l=document.createElement('div'); l.className='lottery-list'; b.onclick=() => { document.querySelectorAll('.lottery-list').forEach(i=>i.classList.remove('active')); l.classList.add('active'); }; db[f].forEach((n,i) => { let s=document.createElement('button'); s.className='btn-lotto'; s.textContent=n; s.onclick=(e)=>{e.stopPropagation(); loadLotto(f,i)}; l.appendChild(s); }); document.getElementById('menu').appendChild(b); document.getElementById('menu').appendChild(l); });
+    
+    Object.keys(db).forEach(f => { 
+        let b=document.createElement('button'); b.className='btn-folder'; b.textContent=f; 
+        let l=document.createElement('div'); l.className='lottery-list'; 
+        b.onclick=() => { document.querySelectorAll('.lottery-list').forEach(i=>i.classList.remove('active')); l.classList.add('active'); }; 
+        db[f].forEach((item,i) => { 
+            let s=document.createElement('button'); s.className='btn-lotto'; 
+            let img = document.createElement('img'); img.src = `https://flagcdn.com/w20/${item.f}.png`; img.style.borderRadius="2px";
+            s.appendChild(img); s.append(item.n);
+            s.onclick=(e)=>{e.stopPropagation(); loadLotto(f,i)}; l.appendChild(s); 
+        }); 
+        document.getElementById('menu').appendChild(b); document.getElementById('menu').appendChild(l); 
+    });
     window.onload = () => { load(); if(!localStorage.getItem('napas')) adjustDate(0); };
 </script>
 </body>
