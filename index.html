@@ -51,7 +51,7 @@
         <button class="btn-action" style="background:#cc0000;" onclick="resetAll()">🔄 รีเซ็ตทั้งหมด</button>
     </div>
     
-    <div class="container" id="capture" onclick="downloadCanvas()">
+    <div class="container" id="capture" onclick="exportCanvas()">
         <div id="title" class="number-box" style="top:35%; left:5%; width:90%; font-size:40px;">หวย</div>
         <div id="line" class="number-box" style="top:25%; left:45%; width:40%; font-size:13px; color:white; font-family:Sarabun;">napas1805</div>
         <div id="date-display" class="number-box" style="top:45%; left:5%; width:90%; font-size:24px; color:#3a1a02;"></div>
@@ -73,7 +73,7 @@
 
     let curF = "หวย จันทร์-ศุกร์", curI = 0, isLocked = false, curDate = new Date();
 
-    function downloadCanvas() {
+    function exportCanvas() {
         const c = document.createElement('canvas'), ctx = c.getContext('2d'), img = new Image();
         img.src = '20183.png';
         img.onload = () => {
@@ -81,14 +81,14 @@
             const container = document.getElementById('capture');
             document.querySelectorAll('.number-box').forEach(box => {
                 const s = window.getComputedStyle(box), rect = box.getBoundingClientRect(), cont = container.getBoundingClientRect();
-                const x = (rect.left - cont.left + rect.width / 2) / container.offsetWidth * c.width;
-                const y = (rect.top - cont.top + rect.height / 2) / container.offsetHeight * c.height;
+                const centerX = (rect.left - cont.left + rect.width / 2) / container.offsetWidth;
+                const centerY = (rect.top - cont.top + rect.height / 2) / container.offsetHeight;
                 ctx.font = `bold ${parseFloat(s.fontSize) * (c.width / container.offsetWidth)}px ${s.fontFamily}`;
                 ctx.fillStyle = box.id === 'den' ? 'red' : '#3a1a02';
                 ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-                ctx.fillText(box.textContent, x, y);
+                ctx.fillText(box.textContent, centerX * c.width, centerY * c.height);
             });
-            const l = document.createElement('a'); l.download = 'Lotto.png'; l.href = c.toDataURL("image/png"); l.click();
+            const l = document.createElement('a'); l.download = 'Lotto_' + Date.now() + '.png'; l.href = c.toDataURL("image/png"); l.click();
         };
     }
 
@@ -103,7 +103,7 @@
         document.getElementById('m1').textContent=Math.floor(Math.random()*900+100); document.getElementById('m2').textContent=Math.floor(Math.random()*900+100); save();
     }
     function save() { const s = {}; document.querySelectorAll('.number-box').forEach(b => s[b.id] = {x:b.getAttribute('data-x')||0, y:b.getAttribute('data-y')||0, txt:b.textContent}); localStorage.setItem('napas', JSON.stringify({s, curF, curI, date:curDate})); }
-    function load() { const d = JSON.parse(localStorage.getItem('napas')); if(d) { curF = d.curF; curI = d.curI; curDate = new Date(d.date); Object.keys(d.s).forEach(id => { const el=document.getElementById(id); el.textContent=d.s[id].txt; el.style.transform=`translate(${d.s[id].x}px, ${d.s[id].y}px)`; el.setAttribute('data-x', d.s[id].x); el.setAttribute('data-y', d.s[id].y); }); adjustDate(0); } }
+    function load() { const d = JSON.parse(localStorage.getItem('napas')); if(d) { curF = d.curF; curI = d.curI; curDate = new Date(d.date); Object.keys(d.s).forEach(id => { const el=document.getElementById(id); if(el) { el.textContent=d.s[id].txt; el.style.transform=`translate(${d.s[id].x}px, ${d.s[id].y}px)`; el.setAttribute('data-x', d.s[id].x); el.setAttribute('data-y', d.s[id].y); } }); adjustDate(0); } }
     function toggleLock() { isLocked = !isLocked; document.getElementById('lock-btn').textContent = isLocked ? "🔒 ล็อคแล้ว" : "🔓 ปลดล็อค"; }
     function resetAll() { localStorage.removeItem('napas'); location.reload(); }
     function filterLottery(q) { document.querySelectorAll('.btn-lotto').forEach(b => b.style.display = b.textContent.toLowerCase().includes(q.toLowerCase()) ? "block" : "none"); }
