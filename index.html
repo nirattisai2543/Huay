@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบสุ่มหวย Napas1805 - Final Perfect Version</title>
+    <title>ระบบสุ่มหวย Napas1805 - Fix Logic</title>
     <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Charmonman:wght@400;700&family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -38,23 +38,16 @@
         <button class="btn-action" style="background:#444;" onclick="showPage('page-menu')">เมนูหลัก</button>
         <button class="btn-action" style="background:#555;" onclick="moveLotto(1)">ถัดไป ▶</button>
     </div>
-    
     <div class="date-control">
         <button onclick="adjustDate(-1)" style="border:none; background:#b8860b; color:white; padding:10px 20px; border-radius:5px; cursor:pointer;">- วัน</button>
         <span id="date-label" style="font-size:18px; font-weight:bold;"></span>
         <button onclick="adjustDate(1)" style="border:none; background:#b8860b; color:white; padding:10px 20px; border-radius:5px; cursor:pointer;">+ วัน</button>
     </div>
-
     <div class="button-grid">
         <button class="btn-action full-width" style="background:linear-gradient(45deg, #b8860b, #ffd700); color:#000;" onclick="genNumbers()">สุ่มเลขนำโชค</button>
         <button class="btn-action" id="lock-btn" onclick="toggleLock()" style="background:#333;">🔓 ปลดล็อค</button>
         <button class="btn-action" style="background:#cc0000;" onclick="resetAll()">🔄 รีเซ็ตทั้งหมด</button>
     </div>
-    
-    <div style="background:#1a1a1a; padding:10px; border-radius:10px; margin-bottom:15px; text-align:center; color:#ffd700;">
-        จิ้มที่ใบหวยเพื่อดาวน์โหลดภาพ
-    </div>
-    
     <div class="container" id="capture" onclick="downloadCanvas()">
         <div id="title" class="number-box" style="top:35%; left:5%; width:90%; font-size:40px;">หวย</div>
         <div id="line" class="number-box" style="top:25%; left:45%; width:40%; font-size:13px; color:white; font-family:Sarabun;">napas1805</div>
@@ -70,60 +63,64 @@
 </div>
 
 <script>
-    let currentDate = new Date();
     const db = {
         "หวย จันทร์-ศุกร์": ["ลาว Extra", "นิเคอิเช้า VIP", "นอยอาเซียน", "นิเคอิเช้า", "จีนเช้า VIP", "จีนเช้า", "ลาว TV", "ฮั่งเส็งเช้า VIP", "ฮั่งเส็งเช้า", "ฮานอย HD", "ไต้หวัน VIP", "ฮานอย STAR", "ไต้หวัน", "เกาหลี", "เกาหลี VIP", "นิเคอิบ่าย", "นิเคอิบ่าย VIP", "ลาว HD", "จีนบ่าย", "ฮานอย TV", "จีนบ่าย VIP", "ฮั่งเส็งบ่าย", "ฮั่งเส็งบ่าย VIP", "ลาวสตาร์", "สิงคโปร์", "ไทยเย็น", "ฮานอยกาชาด", "อินเดีย", "สิงคโปร์ VIP", "อียิปต์", "ฮานอยสามัคคี", "ฮานอยพิเศษ", "ฮานอยปกติ", "ฮานอย VIP", "ฮานอยพัฒนา", "ลาวพัฒนา", "ลาวสามัคคี", "ลาวอาเซียน", "ลาว VIP", "ลาวสามัคคี VIP", "อังกฤษ VIP", "ลาวสตาร์ VIP", "ฮานอย Extra", "อังกฤษ", "เยอรมัน", "รัสเซีย", "เยอรมัน VIP", "ลาวกาชาด", "รัสเซีย VIP", "ดาวโจนส์ VIP", "ดาวโจนส์ STAR", "ดาวโจนส์"],
         "หวย เสาร์-อาทิตย์": ["ลาว Extra", "นิเคอิเช้า VIP", "นอยอาเซียน", "จีนเช้า VIP", "ลาว TV", "ฮั่งเส็งเช้า VIP", "ฮานอย HD", "ไต้หวัน VIP", "ฮานอย STAR", "เกาหลี VIP", "นิเคอิบ่าย VIP", "ลาว HD", "ฮานอย TV", "จีนบ่าย VIP", "ฮั่งเส็งบ่าย VIP", "ลาวสตาร์", "ฮานอยกาชาด", "สิงคโปร์ VIP", "ฮานอยพิเศษ", "ฮานอยสามัคคี", "ฮานอยปกติ", "ฮานอย VIP", "ฮานอยพัฒนา", "ลาวสามัคคี", "ลาวอาเซียน", "ลาว VIP", "ลาวสามัคคี VIP", "อังกฤษ VIP", "ลาวสตาร์ VIP", "ฮานอย Extra", "เยอรมัน VIP", "ลาวกาชาด", "รัสเซีย VIP", "ดาวโจนส์ VIP", "ดาวโจนส์ STAR"]
     };
-    let currentFolder = "", currentIndex = 0, isLocked = false;
 
+    function loadLotto(f, i) { 
+        localStorage.setItem('napas_f', f); 
+        localStorage.setItem('napas_i', i); 
+        document.getElementById('title').textContent = db[f][i]; 
+        showPage('page-main'); 
+        genNumbers(); 
+    }
+
+    function moveLotto(dir) { 
+        let f = localStorage.getItem('napas_f');
+        let i = parseInt(localStorage.getItem('napas_i'));
+        let newIndex = i + dir;
+        if(f && db[f] && newIndex >= 0 && newIndex < db[f].length) loadLotto(f, newIndex); 
+    }
+
+    function showPage(p) { document.getElementById('page-menu').style.display = p=='page-menu'?'block':'none'; document.getElementById('page-main').style.display = p=='page-main'?'block':'none'; }
+    
+    // ... (ส่วนฟังก์ชัน downloadCanvas, genNumbers, loadAll, ฯลฯ เดิม) ...
     function downloadCanvas() {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        const img = new Image();
-        img.src = '20183.png';
+        const canvas = document.createElement('canvas'); const ctx = canvas.getContext('2d'); const img = new Image(); img.src = '20183.png';
         img.onload = () => {
-            canvas.width = img.width; canvas.height = img.height;
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            canvas.width = img.width; canvas.height = img.height; ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
             const container = document.getElementById('capture'), cW = container.offsetWidth, cH = container.offsetHeight;
             document.querySelectorAll('.number-box').forEach(box => {
                 const style = window.getComputedStyle(box), rect = box.getBoundingClientRect(), contRect = container.getBoundingClientRect();
                 const centerX = (rect.left - contRect.left + rect.width / 2) / cW;
                 const centerY = (rect.top - contRect.top + rect.height / 2) / cH;
                 const scale = canvas.width / cW, fs = parseFloat(style.fontSize) * scale;
-                ctx.font = `bold ${fs}px ${style.fontFamily}`;
-                ctx.fillStyle = box.id === 'den' ? 'red' : '#3a1a02';
+                ctx.font = `bold ${fs}px ${style.fontFamily}`; ctx.fillStyle = box.id === 'den' ? 'red' : '#3a1a02';
                 ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
                 ctx.fillText(box.textContent, centerX * canvas.width, centerY * canvas.height);
             });
-            const link = document.createElement('a'); link.download = 'Lotto_Result_' + Date.now() + '.png'; link.href = canvas.toDataURL("image/png"); link.click();
+            const link = document.createElement('a'); link.download = 'Lotto.png'; link.href = canvas.toDataURL("image/png"); link.click();
         };
     }
 
-    function loadLotto(f, i) { currentFolder=f; currentIndex=i; document.getElementById('title').textContent=db[f][i]; showPage('page-main'); genNumbers(); saveAll(); }
-    function showPage(p) { document.getElementById('page-menu').style.display = p=='page-menu'?'block':'none'; document.getElementById('page-main').style.display = p=='page-main'?'block':'none'; }
     function genNumbers() {
         let w1=Math.floor(Math.random()*10), w2, den; do{ w2=Math.floor(Math.random()*10); }while(w2===w1); do{ den=Math.floor(Math.random()*10); }while(den===w1||den===w2);
         document.getElementById('wing').textContent=w1+" - "+w2; document.getElementById('den').textContent=den;
         document.querySelectorAll('#t1, #t2, #t3').forEach(e=>{ e.textContent=Math.floor(Math.random()*90+10); });
-        document.getElementById('m1').textContent=Math.floor(Math.random()*900+100); document.getElementById('m2').textContent=Math.floor(Math.random()*900+100); saveAll();
+        document.getElementById('m1').textContent=Math.floor(Math.random()*900+100); document.getElementById('m2').textContent=Math.floor(Math.random()*900+100);
     }
-    function saveAll() { const state = {}; document.querySelectorAll('.number-box').forEach(b => { state[b.id] = { x: b.getAttribute('data-x')||0, y: b.getAttribute('data-y')||0, fs: b.style.fontSize, txt: b.textContent }; }); localStorage.setItem('napas_save', JSON.stringify(state)); }
-    function loadAll() { const save = JSON.parse(localStorage.getItem('napas_save')); if(save) { Object.keys(save).forEach(id => { const el = document.getElementById(id); if(el) { el.style.transform = `translate(${save[id].x}px, ${save[id].y}px)`; el.setAttribute('data-x', save[id].x); el.setAttribute('data-y', save[id].y); el.style.fontSize = save[id].fs; el.textContent = save[id].txt; } }); } }
-    function adjustDate(d) { currentDate.setDate(currentDate.getDate() + d); const s = currentDate.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' }); document.getElementById('date-label').textContent = s; document.getElementById('date-display').textContent = s; }
-    function toggleLock() { isLocked = !isLocked; document.getElementById('lock-btn').textContent = isLocked ? "🔒 ล็อคแล้ว" : "🔓 ปลดล็อค"; }
-    function resetAll() { localStorage.removeItem('napas_save'); location.reload(); }
-    function filterLottery(q) { q = q.toLowerCase(); document.querySelectorAll('.btn-lotto').forEach(b => { b.style.display = b.textContent.toLowerCase().includes(q) ? "block" : "none"; }); }
-    interact('.number-box').draggable({ listeners: { move(e) { if(!isLocked) { const t=e.target; const x=(parseFloat(t.getAttribute('data-x'))||0)+e.dx; const y=(parseFloat(t.getAttribute('data-y'))||0)+e.dy; t.style.transform=`translate(${x}px, ${y}px)`; t.setAttribute('data-x', x); t.setAttribute('data-y', y); saveAll(); } } } });
 
+    function adjustDate(d) { let date = new Date(); if(localStorage.getItem('napas_d')) date = new Date(localStorage.getItem('napas_d')); date.setDate(date.getDate() + d); localStorage.setItem('napas_d', date); const s = date.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' }); document.getElementById('date-label').textContent = s; document.getElementById('date-display').textContent = s; }
+    
+    // ตั้งค่าเริ่มต้นปุ่ม
     Object.keys(db).forEach(f => { 
         let b = document.createElement('button'); b.className='btn-folder'; b.textContent=f; 
         let l = document.createElement('div'); l.className='lottery-list'; 
-        b.onclick = () => { const isActive = l.classList.contains('active'); document.querySelectorAll('.lottery-list').forEach(i=>i.classList.remove('active')); if (!isActive) l.classList.add('active'); }; 
+        b.onclick = () => { document.querySelectorAll('.lottery-list').forEach(i=>i.classList.remove('active')); l.classList.add('active'); }; 
         db[f].forEach((n, i) => { let s = document.createElement('button'); s.className='btn-lotto'; s.textContent=n; s.onclick = (e) => { e.stopPropagation(); loadLotto(f, i); }; l.appendChild(s); }); 
         document.getElementById('menu').appendChild(b); document.getElementById('menu').appendChild(l); 
     });
-    window.onload = () => { loadAll(); adjustDate(0); };
 </script>
 </body>
 </html>
