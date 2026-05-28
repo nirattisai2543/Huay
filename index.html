@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบสุ่มหวย Napas1805</title>
+    <title>ระบบสุ่มหวย Napas1805 - Final Complete</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Charmonman:wght@400;700&family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
@@ -20,10 +20,10 @@
         .lottery-list { display: none; flex-wrap: wrap; gap: 5px; justify-content: center; background: #1a1a1a; padding: 10px; border-radius: 10px; margin-bottom: 15px; }
         .lottery-list.active { display: flex; }
         .btn-lotto { padding: 8px 12px; background: #333; border: 1px solid #555; color: #fff; cursor: pointer; border-radius: 5px; font-size: 13px; }
-        .container { position: relative; width: 100%; aspect-ratio: 2 / 3; background-image: url('20183.png'); background-size: 100% 100%; background-position: center; background-repeat: no-repeat; border-radius: 10px; margin: 0 auto; overflow: hidden; box-sizing: border-box; }
-        .number-box { position: absolute; font-weight: 700; color: #3a1a02; text-align: center; font-family: 'Charmonman'; touch-action: none; cursor: pointer; border: 2px solid transparent; box-sizing: border-box; user-select: none; }
+        .container { position: relative; width: 100%; aspect-ratio: 2 / 3; background-image: url('20183.png'); background-size: cover; background-position: center; border-radius: 10px; margin: 0 auto; overflow: hidden; }
+        .number-box { position: absolute; font-weight: 700; color: #3a1a02; text-align: center; font-family: 'Charmonman'; touch-action: none; cursor: pointer; border: 2px solid transparent; }
         .number-box.selected { border: 2px solid #ffd700 !important; background: rgba(255, 255, 255, 0.1); }
-        #result-img { width: 100%; margin-top: 20px; border-radius: 10px; border: none; display: none; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        #result-img { width: 100%; margin-top: 20px; border-radius: 10px; border: 3px solid #ffd700; display: none; }
         .date-control { background: #222; padding: 10px; border-radius: 10px; border: 1px solid #b8860b; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         #btn-top { display: none; width: 100%; margin-top: 15px; background: #555; padding: 15px; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; border: none; }
     </style>
@@ -51,7 +51,7 @@
 
     <div class="button-grid">
         <button class="btn-action full-width" style="background:linear-gradient(45deg, #b8860b, #ffd700); color:#000;" onclick="genNumbers()">สุ่มเลขนำโชค</button>
-        <button class="btn-action" id="lock-btn" onclick="toggleLock()">🔓 ปลดล็อค</button>
+        <button class="btn-action" id="lock-btn" onclick="toggleLock()" style="background:#333;">🔓 ปลดล็อค</button>
         <button class="btn-action" style="background:#cc0000;" onclick="resetAll()">🔄 รีเซ็ตทั้งหมด</button>
         <button class="btn-action full-width" style="background:#007bff;" onclick="prepareImage()">🖼️ สร้างรูปภาพใบหวย</button>
     </div>
@@ -84,94 +84,34 @@
     };
     let currentFolder = "", currentIndex = 0, isLocked = false, selectedBox = null;
 
-    function loadLotto(folder, index, autoGen = true) { 
-        currentFolder = folder; 
-        currentIndex = index; 
-        document.getElementById('title').textContent = db[folder][index]; 
-        showPage('page-main'); 
-        updateDateUI();
-        if(autoGen) genNumbers(); 
-        saveAll(); 
-    }
-    
-    function moveLotto(dir) { 
-        let newIndex = currentIndex + dir; 
-        if(newIndex >= 0 && newIndex < db[currentFolder].length) loadLotto(currentFolder, newIndex, true); 
-    }
-    
-    function updateDateUI() { 
-        const d = currentDate.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' }); 
-        document.getElementById('date-label').textContent = d; 
-        document.getElementById('date-display').textContent = d; 
-    }
-    
-    function saveAll() { 
-        const state = {}; 
-        document.querySelectorAll('.number-box').forEach(b => { 
-            state[b.id] = { x: b.getAttribute('data-x') || 0, y: b.getAttribute('data-y') || 0, fs: b.style.fontSize, txt: b.textContent }; 
-        }); 
-        state['date'] = currentDate.toString(); state['folder'] = currentFolder; state['index'] = currentIndex; 
-        localStorage.setItem('napas_save', JSON.stringify(state)); 
-    }
-    
-    function loadAll() { 
-        const save = JSON.parse(localStorage.getItem('napas_save')); 
-        if(save) { 
-            currentDate = new Date(save.date); 
-            currentFolder = save.folder; currentIndex = save.index; 
-            document.getElementById('title').textContent = db[currentFolder][currentIndex];
-            Object.keys(save).forEach(id => { 
-                if(['date','folder','index'].includes(id)) return; 
-                const el = document.getElementById(id); 
-                if(el) { 
-                    const x = parseFloat(save[id].x) || 0, y = parseFloat(save[id].y) || 0;
-                    el.style.transform = `translate(${x}px, ${y}px)`; 
-                    el.setAttribute('data-x', x); el.setAttribute('data-y', y); 
-                    el.style.fontSize = save[id].fs; el.textContent = save[id].txt; 
-                } 
-            }); 
-        } else { updateDateUI(); }
-    }
-    
-    function showPage(p) { 
-        document.getElementById('page-menu').style.display = p=='page-menu'?'block':'none'; 
-        document.getElementById('page-main').style.display = p=='page-main'?'block':'none'; 
-        if(p == 'page-main') loadAll();
-    }
-    
+    function loadLotto(folder, index) { currentFolder = folder; currentIndex = index; document.getElementById('title').textContent = db[folder][index]; showPage('page-main'); genNumbers(); saveAll(); }
+    function moveLotto(dir) { let newIndex = currentIndex + dir; if(newIndex >= 0 && newIndex < db[currentFolder].length) loadLotto(currentFolder, newIndex); }
+    function updateDateUI() { const d = currentDate.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' }); document.getElementById('date-label').textContent = d; document.getElementById('date-display').textContent = d; }
+    function saveAll() { const state = {}; document.querySelectorAll('.number-box').forEach(b => { state[b.id] = { x: b.getAttribute('data-x')||0, y: b.getAttribute('data-y')||0, fs: b.style.fontSize, txt: b.textContent }; }); state['date'] = currentDate.toString(); state['folder'] = currentFolder; state['index'] = currentIndex; localStorage.setItem('napas_save', JSON.stringify(state)); }
+    function loadAll() { const save = JSON.parse(localStorage.getItem('napas_save')); if(save) { currentDate = new Date(save.date); currentFolder = save.folder; currentIndex = save.index; Object.keys(save).forEach(id => { if(['date','folder','index'].includes(id)) return; const el = document.getElementById(id); if(el) { el.style.transform = `translate(${save[id].x}px, ${save[id].y}px)`; el.setAttribute('data-x', save[id].x); el.setAttribute('data-y', save[id].y); el.style.fontSize = save[id].fs; el.textContent = save[id].txt; } }); } updateDateUI(); }
+    function showPage(p) { document.getElementById('page-menu').style.display = p=='page-menu'?'block':'none'; document.getElementById('page-main').style.display = p=='page-main'?'block':'none'; }
     function resetAll() { localStorage.removeItem('napas_save'); location.reload(); }
     function adjustDate(d) { currentDate.setDate(currentDate.getDate() + d); updateDateUI(); saveAll(); }
+    
     function prepareImage() { 
         document.querySelectorAll('.number-box').forEach(b => b.classList.remove('selected')); 
-        html2canvas(document.getElementById('capture'), { scale: 3 }).then(canvas => { 
+        html2canvas(document.getElementById('capture'), { scale: 2 }).then(canvas => { 
             const img = document.getElementById('result-img'); 
-            img.src = canvas.toDataURL("image/png"); img.style.display = 'block'; 
+            img.src = canvas.toDataURL("image/png"); 
+            img.style.display = 'block'; 
             document.getElementById('btn-top').style.display = 'block';
-            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+            setTimeout(() => {
+                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+            }, 100);
         }); 
     }
     
-    function filterLottery(q) { 
-        q = q.toLowerCase(); 
-        document.querySelectorAll('.btn-folder').forEach(f => {
-            let l = f.nextElementSibling, has = false;
-            l.querySelectorAll('.btn-lotto').forEach(b => { 
-                let m = b.textContent.toLowerCase().includes(q);
-                b.style.display = m ? "block" : "none"; if(m) has = true;
-            }); 
-            f.style.display = (q === "" || has) ? "block" : "none";
-            if(q !== "" && has) l.classList.add('active'); else l.classList.remove('active');
-        });
-    }
-    
-    function toggleLock() { 
-        isLocked = !isLocked; 
-        document.getElementById('lock-btn').textContent = isLocked ? "🔒 ล็อคแล้ว" : "🔓 ปลดล็อค"; 
-        document.getElementById('lock-btn').style.background = isLocked ? "#b8860b" : "#333"; 
-    }
+    function filterLottery(q) { q = q.toLowerCase(); document.querySelectorAll('.btn-lotto').forEach(b => { b.style.display = b.textContent.toLowerCase().includes(q) ? "block" : "none"; }); }
+    function toggleLock() { isLocked = !isLocked; document.getElementById('lock-btn').textContent = isLocked ? "🔒 ล็อคแล้ว" : "🔓 ปลดล็อค"; document.getElementById('lock-btn').style.background = isLocked ? "#b8860b" : "#333"; }
     
     function genNumbers() {
-        let w1 = Math.floor(Math.random()*10), w2, den;
+        let w1, w2, den;
+        w1 = Math.floor(Math.random()*10);
         do { w2 = Math.floor(Math.random()*10); } while (w2 === w1);
         do { den = Math.floor(Math.random()*10); } while (den === w1 || den === w2);
         document.getElementById('wing').textContent = w1 + " - " + w2;
@@ -179,34 +119,29 @@
         const s = [w1, w2, den];
         document.querySelectorAll('#t1, #t2, #t3').forEach(el => {
             const p = s[Math.floor(Math.random()*s.length)];
-            el.textContent = Math.random() > 0.5 ? (p.toString() + Math.floor(Math.random()*10)) : (Math.floor(Math.random()*10).toString() + p);
+            const o = Math.floor(Math.random()*10);
+            el.textContent = Math.random() > 0.5 ? (p.toString()+o) : (o.toString()+p);
         });
         document.getElementById('m1').textContent = Math.floor(Math.random()*900+100);
         document.getElementById('m2').textContent = Math.floor(Math.random()*900+100);
         saveAll();
     }
 
-    interact('.number-box').draggable({ listeners: { move(e) { if(!isLocked) { 
-        const x = (parseFloat(e.target.getAttribute('data-x')) || 0) + e.dx, y = (parseFloat(e.target.getAttribute('data-y')) || 0) + e.dy; 
-        e.target.style.transform = `translate(${x}px, ${y}px)`; 
-        e.target.setAttribute('data-x', x); e.target.setAttribute('data-y', y); saveAll(); 
-    }} }});
-    
-    document.querySelectorAll('.number-box').forEach(box => { 
-        box.onclick = (e) => { e.stopPropagation(); document.querySelectorAll('.number-box').forEach(b => b.classList.remove('selected')); box.classList.add('selected'); selectedBox = box; document.getElementById('size-slider').value = parseInt(window.getComputedStyle(box).fontSize); }; 
-    });
-    
+    interact('.number-box').draggable({ listeners: { move(e) { if(!isLocked) { const t=e.target; const x=(parseFloat(t.getAttribute('data-x'))||0)+e.dx; const y=(parseFloat(t.getAttribute('data-y'))||0)+e.dy; t.style.transform=`translate(${x}px, ${y}px)`; t.setAttribute('data-x', x); t.setAttribute('data-y', y); saveAll(); } } } });
+    document.querySelectorAll('.number-box').forEach(box => { box.onclick = (e) => { e.stopPropagation(); document.querySelectorAll('.number-box').forEach(b=>b.classList.remove('selected')); box.classList.add('selected'); selectedBox=box; document.getElementById('size-slider').value = parseInt(window.getComputedStyle(box).fontSize); }; });
     document.body.addEventListener('click', () => { document.querySelectorAll('.number-box').forEach(b => b.classList.remove('selected')); selectedBox = null; });
     function resizeSelected(v) { if(selectedBox) { selectedBox.style.fontSize = v + 'px'; saveAll(); } }
     
     const menu = document.getElementById('menu'); 
     Object.keys(db).forEach(f => { 
-        let b = document.createElement('button'); b.className = 'btn-folder'; b.textContent = f; 
-        let l = document.createElement('div'); l.className = 'lottery-list'; 
-        b.onclick = () => { document.querySelectorAll('.lottery-list').forEach(i => i !== l ? i.classList.remove('active') : null); l.classList.toggle('active'); }; 
-        db[f].forEach((n, i) => { let s = document.createElement('button'); s.className = 'btn-lotto'; s.textContent = n; s.onclick = () => loadLotto(f, i, true); l.appendChild(s); }); 
+        let b = document.createElement('button'); b.className='btn-folder'; b.textContent=f; 
+        let l = document.createElement('div'); l.className='lottery-list'; 
+        b.onclick = () => { document.querySelectorAll('.lottery-list').forEach(i=>i.classList.remove('active')); l.classList.add('active'); }; 
+        db[f].forEach((n, i) => { let s = document.createElement('button'); s.className='btn-lotto'; s.textContent=n; s.onclick = () => loadLotto(f, i); l.appendChild(s); }); 
         menu.appendChild(b); menu.appendChild(l); 
     });
+    
+    window.onload = loadAll;
 </script>
 </body>
 </html>
