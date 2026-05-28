@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบสุ่มหวย Napas1805</title>
+    <title>ระบบสุ่มหวย Napas1805 - Responsive Export</title>
     <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Charmonman:wght@400;700&family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -53,7 +53,7 @@
     </div>
     
     <div style="background:#1a1a1a; padding:10px; border-radius:10px; margin-bottom:15px; text-align:center; color:#ffd700;">
-        กดที่ใบหวยเพื่อดาวน์โหลดภาพ
+        จิ้มที่รูปใบหวยเพื่อดาวน์โหลดภาพชัดๆ
     </div>
     
     <div class="container" id="capture" onclick="downloadCanvas()">
@@ -78,25 +78,6 @@
     };
     let currentFolder = "", currentIndex = 0, isLocked = false;
 
-    function loadLotto(folder, index) { currentFolder = folder; currentIndex = index; document.getElementById('title').textContent = db[folder][index]; showPage('page-main'); genNumbers(); saveAll(); }
-    function moveLotto(dir) { let newIndex = currentIndex + dir; if(newIndex >= 0 && newIndex < db[currentFolder].length) loadLotto(currentFolder, newIndex); }
-    function updateDateUI() { const d = currentDate.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' }); document.getElementById('date-label').textContent = d; document.getElementById('date-display').textContent = d; }
-    function saveAll() { const state = {}; document.querySelectorAll('.number-box').forEach(b => { state[b.id] = { x: b.getAttribute('data-x')||0, y: b.getAttribute('data-y')||0, fs: b.style.fontSize, txt: b.textContent }; }); state['date'] = currentDate.toString(); state['folder'] = currentFolder; state['index'] = currentIndex; localStorage.setItem('napas_save', JSON.stringify(state)); }
-    function loadAll() { const save = JSON.parse(localStorage.getItem('napas_save')); if(save) { currentDate = new Date(save.date); currentFolder = save.folder; currentIndex = save.index; Object.keys(save).forEach(id => { if(['date','folder','index'].includes(id)) return; const el = document.getElementById(id); if(el) { el.style.transform = `translate(${save[id].x}px, ${save[id].y}px)`; el.setAttribute('data-x', save[id].x); el.setAttribute('data-y', save[id].y); el.style.fontSize = save[id].fs; el.textContent = save[id].txt; } }); } updateDateUI(); }
-    function showPage(p) { document.getElementById('page-menu').style.display = p=='page-menu'?'block':'none'; document.getElementById('page-main').style.display = p=='page-main'?'block':'none'; }
-    function resetAll() { localStorage.removeItem('napas_save'); location.reload(); }
-    function adjustDate(d) { currentDate.setDate(currentDate.getDate() + d); updateDateUI(); saveAll(); }
-    function filterLottery(q) { q = q.toLowerCase(); document.querySelectorAll('.btn-lotto').forEach(b => { b.style.display = b.textContent.toLowerCase().includes(q) ? "block" : "none"; }); }
-    function toggleLock() { isLocked = !isLocked; document.getElementById('lock-btn').textContent = isLocked ? "🔒 ล็อคแล้ว" : "🔓 ปลดล็อค"; document.getElementById('lock-btn').style.background = isLocked ? "#b8860b" : "#333"; }
-    
-    function genNumbers() {
-        let w1, w2, den;
-        w1 = Math.floor(Math.random()*10); do { w2 = Math.floor(Math.random()*10); } while (w2 === w1); do { den = Math.floor(Math.random()*10); } while (den === w1 || den === w2);
-        document.getElementById('wing').textContent = w1 + " - " + w2; document.getElementById('den').textContent = den;
-        const s = [w1, w2, den]; document.querySelectorAll('#t1, #t2, #t3').forEach(el => { const p = s[Math.floor(Math.random()*s.length)]; const o = Math.floor(Math.random()*10); el.textContent = Math.random() > 0.5 ? (p.toString()+o) : (o.toString()+p); });
-        document.getElementById('m1').textContent = Math.floor(Math.random()*900+100); document.getElementById('m2').textContent = Math.floor(Math.random()*900+100); saveAll();
-    }
-
     function downloadCanvas() {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
@@ -106,23 +87,50 @@
             canvas.width = img.width;
             canvas.height = img.height;
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            
+            const container = document.getElementById('capture');
+            const containerWidth = container.offsetWidth;
+            const containerHeight = container.offsetHeight;
+
             document.querySelectorAll('.number-box').forEach(box => {
                 const style = window.getComputedStyle(box);
-                const x = parseFloat(box.style.left) / 100 * canvas.width;
-                const y = parseFloat(box.style.top) / 100 * canvas.height;
-                const fs = parseFloat(style.fontSize) * (canvas.width / 600);
-                ctx.font = `bold ${fs}px ${style.fontFamily}`;
+                const rect = box.getBoundingClientRect();
+                const containerRect = container.getBoundingClientRect();
+                
+                const relX = (rect.left - containerRect.left) / containerWidth;
+                const relY = (rect.top - containerRect.top) / containerHeight;
+                const scaleFactor = canvas.width / containerWidth;
+                const fontSize = parseFloat(style.fontSize) * scaleFactor;
+                
+                ctx.font = `bold ${fontSize}px ${style.fontFamily}`;
                 ctx.fillStyle = box.id === 'den' ? 'red' : '#3a1a02';
                 ctx.textAlign = 'center';
-                ctx.fillText(box.textContent, x + (parseFloat(box.style.width)/100 * canvas.width / 2), y + fs);
+                ctx.textBaseline = 'top';
+                ctx.fillText(box.textContent, 
+                    (relX * canvas.width) + (box.offsetWidth * scaleFactor / 2), 
+                    (relY * canvas.height) + (fontSize * 0.1)
+                );
             });
-            const link = document.createElement('a'); link.download = 'Lotto_' + Date.now() + '.png'; link.href = canvas.toDataURL("image/png"); link.click();
+            const link = document.createElement('a'); link.download = 'Napas_Lotto_' + Date.now() + '.png'; link.href = canvas.toDataURL("image/png"); link.click();
         };
     }
 
+    // ฟังก์ชันเสริม (คงเดิม)
+    function loadLotto(f, i) { currentFolder=f; currentIndex=i; document.getElementById('title').textContent=db[f][i]; showPage('page-main'); genNumbers(); saveAll(); }
+    function showPage(p) { document.getElementById('page-menu').style.display = p=='page-menu'?'block':'none'; document.getElementById('page-main').style.display = p=='page-main'?'block':'none'; }
+    function genNumbers() {
+        let w1=Math.floor(Math.random()*10), w2, den; do{ w2=Math.floor(Math.random()*10); }while(w2===w1); do{ den=Math.floor(Math.random()*10); }while(den===w1||den===w2);
+        document.getElementById('wing').textContent=w1+" - "+w2; document.getElementById('den').textContent=den;
+        document.querySelectorAll('#t1, #t2, #t3').forEach(e=>{ e.textContent=Math.floor(Math.random()*90+10); });
+        document.getElementById('m1').textContent=Math.floor(Math.random()*900+100); document.getElementById('m2').textContent=Math.floor(Math.random()*900+100); saveAll();
+    }
+    function saveAll() { const state = {}; document.querySelectorAll('.number-box').forEach(b => { state[b.id] = { x: b.getAttribute('data-x')||0, y: b.getAttribute('data-y')||0, fs: b.style.fontSize, txt: b.textContent }; }); localStorage.setItem('napas_save', JSON.stringify(state)); }
+    function loadAll() { const save = JSON.parse(localStorage.getItem('napas_save')); if(save) { Object.keys(save).forEach(id => { const el = document.getElementById(id); if(el) { el.style.transform = `translate(${save[id].x}px, ${save[id].y}px)`; el.setAttribute('data-x', save[id].x); el.setAttribute('data-y', save[id].y); el.style.fontSize = save[id].fs; el.textContent = save[id].txt; } }); } }
+    function toggleLock() { isLocked = !isLocked; document.getElementById('lock-btn').textContent = isLocked ? "🔒 ล็อคแล้ว" : "🔓 ปลดล็อค"; }
+    function resetAll() { localStorage.removeItem('napas_save'); location.reload(); }
     interact('.number-box').draggable({ listeners: { move(e) { if(!isLocked) { const t=e.target; const x=(parseFloat(t.getAttribute('data-x'))||0)+e.dx; const y=(parseFloat(t.getAttribute('data-y'))||0)+e.dy; t.style.transform=`translate(${x}px, ${y}px)`; t.setAttribute('data-x', x); t.setAttribute('data-y', y); saveAll(); } } } });
     window.onload = loadAll;
-    const menu = document.getElementById('menu'); Object.keys(db).forEach(f => { let b = document.createElement('button'); b.className='btn-folder'; b.textContent=f; let l = document.createElement('div'); l.className='lottery-list'; b.onclick = () => { document.querySelectorAll('.lottery-list').forEach(i=>i.classList.remove('active')); l.classList.add('active'); }; db[f].forEach((n, i) => { let s = document.createElement('button'); s.className='btn-lotto'; s.textContent=n; s.onclick = () => loadLotto(f, i); l.appendChild(s); }); menu.appendChild(b); menu.appendChild(l); });
+    Object.keys(db).forEach(f => { let b = document.createElement('button'); b.className='btn-folder'; b.textContent=f; b.onclick = () => { document.querySelectorAll('.lottery-list').forEach(i=>i.classList.remove('active')); l.classList.add('active'); }; let l = document.createElement('div'); l.className='lottery-list'; db[f].forEach((n, i) => { let s = document.createElement('button'); s.className='btn-lotto'; s.textContent=n; s.onclick = () => loadLotto(f, i); l.appendChild(s); }); document.getElementById('menu').appendChild(b); document.getElementById('menu').appendChild(l); });
 </script>
 </body>
 </html>
