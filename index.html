@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบสุ่มหวย Napas1805 - Final Version</title>
+    <title>ระบบสุ่มหวย Napas1805 - Final Perfect Version</title>
     <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Charmonman:wght@400;700&family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -21,7 +21,6 @@
         .btn-lotto { padding: 8px 12px; background: #333; border: 1px solid #555; color: #fff; cursor: pointer; border-radius: 5px; font-size: 13px; }
         .container { position: relative; width: 100%; aspect-ratio: 2 / 3; background-image: url('20183.png'); background-size: cover; background-position: center; border-radius: 10px; margin: 0 auto; overflow: hidden; cursor: pointer; }
         .number-box { position: absolute; font-weight: 700; color: #3a1a02; text-align: center; font-family: 'Charmonman'; touch-action: none; cursor: pointer; border: 2px solid transparent; }
-        .number-box.selected { border: 2px solid #ffd700 !important; background: rgba(255, 255, 255, 0.1); }
         .date-control { background: #222; padding: 10px; border-radius: 10px; border: 1px solid #b8860b; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
     </style>
 </head>
@@ -84,11 +83,9 @@
         const img = new Image();
         img.src = '20183.png';
         img.onload = () => {
-            canvas.width = img.width;
-            canvas.height = img.height;
+            canvas.width = img.width; canvas.height = img.height;
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            const container = document.getElementById('capture');
-            const cW = container.offsetWidth, cH = container.offsetHeight;
+            const container = document.getElementById('capture'), cW = container.offsetWidth, cH = container.offsetHeight;
             document.querySelectorAll('.number-box').forEach(box => {
                 const style = window.getComputedStyle(box), rect = box.getBoundingClientRect(), contRect = container.getBoundingClientRect();
                 const centerX = (rect.left - contRect.left + rect.width / 2) / cW;
@@ -99,7 +96,7 @@
                 ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
                 ctx.fillText(box.textContent, centerX * canvas.width, centerY * canvas.height);
             });
-            const link = document.createElement('a'); link.download = 'Napas_Lotto.png'; link.href = canvas.toDataURL("image/png"); link.click();
+            const link = document.createElement('a'); link.download = 'Lotto_Result_' + Date.now() + '.png'; link.href = canvas.toDataURL("image/png"); link.click();
         };
     }
 
@@ -118,12 +115,12 @@
     function resetAll() { localStorage.removeItem('napas_save'); location.reload(); }
     function filterLottery(q) { q = q.toLowerCase(); document.querySelectorAll('.btn-lotto').forEach(b => { b.style.display = b.textContent.toLowerCase().includes(q) ? "block" : "none"; }); }
     interact('.number-box').draggable({ listeners: { move(e) { if(!isLocked) { const t=e.target; const x=(parseFloat(t.getAttribute('data-x'))||0)+e.dx; const y=(parseFloat(t.getAttribute('data-y'))||0)+e.dy; t.style.transform=`translate(${x}px, ${y}px)`; t.setAttribute('data-x', x); t.setAttribute('data-y', y); saveAll(); } } } });
-    
+
     Object.keys(db).forEach(f => { 
         let b = document.createElement('button'); b.className='btn-folder'; b.textContent=f; 
         let l = document.createElement('div'); l.className='lottery-list'; 
-        b.onclick = () => { document.querySelectorAll('.lottery-list').forEach(i=>i.classList.remove('active')); l.classList.add('active'); }; 
-        db[f].forEach((n, i) => { let s = document.createElement('button'); s.className='btn-lotto'; s.textContent=n; s.onclick = () => loadLotto(f, i); l.appendChild(s); }); 
+        b.onclick = () => { const isActive = l.classList.contains('active'); document.querySelectorAll('.lottery-list').forEach(i=>i.classList.remove('active')); if (!isActive) l.classList.add('active'); }; 
+        db[f].forEach((n, i) => { let s = document.createElement('button'); s.className='btn-lotto'; s.textContent=n; s.onclick = (e) => { e.stopPropagation(); loadLotto(f, i); }; l.appendChild(s); }); 
         document.getElementById('menu').appendChild(b); document.getElementById('menu').appendChild(l); 
     });
     window.onload = () => { loadAll(); adjustDate(0); };
