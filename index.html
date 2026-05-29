@@ -96,10 +96,11 @@
                 <div style="text-align:center; padding:20px; color:white; background:#0b0b0b; min-height:100vh;">
                     <h3 style="color:#ffd700;">กดค้างที่รูป > บันทึกไปยังรูปภาพ</h3>
                     <img src="${dataURL}" style="width:100%; max-width:500px; border:2px solid #b8860b; border-radius:10px;">
+                    <p style="margin:10px; color:#aaa;">${document.getElementById('title').textContent}</p>
                     <br><br>
                     <div style="display:flex; justify-content:center; gap:10px;">
                         <button onclick="location.reload()" style="padding:15px 20px; background:#555; color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer;">ย้อนกลับ</button>
-                        <button onclick="genNumbers(); exportForIOS();" style="padding:15px 20px; background:#b8860b; color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer;">สุ่มเลขใหม่</button>
+                        <button onclick="moveLotto(1); genNumbers(); exportForIOS();" style="padding:15px 20px; background:#b8860b; color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer;">เปลี่ยนหวย + สุ่มใหม่</button>
                     </div>
                 </div>
             `;
