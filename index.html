@@ -20,7 +20,7 @@
         .lottery-list.active { display: flex; }
         .btn-lotto { padding: 8px 12px; background: #333; border: 1px solid #555; color: #fff; cursor: pointer; border-radius: 5px; font-size: 13px; display: flex; align-items: center; gap: 8px; }
         .container { position: relative; width: 100%; aspect-ratio: 2 / 3; background-image: url('20183.png'); background-size: cover; background-position: center; border-radius: 10px; margin: 0 auto; overflow: hidden; cursor: pointer; }
-        .number-box { position: absolute; font-weight: 700; color: #3a1a02; text-align: center; font-family: 'Charmonman'; touch-action: none; cursor: pointer; border: 2px solid transparent; transform: translate(0px, 0px); }
+        .number-box { position: absolute; font-weight: 700; color: #3a1a02; text-align: center; font-family: 'Charmonman'; touch-action: none; cursor: pointer; border: 2px solid transparent; }
         .date-control { background: #222; padding: 10px; border-radius: 10px; border: 1px solid #b8860b; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
     </style>
 </head>
@@ -69,70 +69,36 @@
 <script>
     const db = {
         "หวย จันทร์-ศุกร์": [{n:"ลาว Extra", f:"la"}, {n:"นิเคอิเช้า VIP", f:"jp"}, {n:"นอยอาเซียน", f:"vn"}, {n:"นิเคอิเช้า", f:"jp"}, {n:"จีนเช้า VIP", f:"cn"}, {n:"จีนเช้า", f:"cn"}, {n:"ลาว TV", f:"la"}, {n:"ฮั่งเส็งเช้า VIP", f:"hk"}, {n:"ฮั่งเส็งเช้า", f:"hk"}, {n:"ฮานอย HD", f:"vn"}, {n:"ไต้หวัน VIP", f:"tw"}, {n:"ฮานอย STAR", f:"vn"}, {n:"ไต้หวัน", f:"tw"}, {n:"เกาหลี", f:"kr"}, {n:"เกาหลี VIP", f:"kr"}, {n:"นิเคอิบ่าย", f:"jp"}, {n:"นิเคอิบ่าย VIP", f:"jp"}, {n:"ลาว HD", f:"la"}, {n:"จีนบ่าย", f:"cn"}, {n:"ฮานอย TV", f:"vn"}, {n:"จีนบ่าย VIP", f:"cn"}, {n:"ฮั่งเส็งบ่าย", f:"hk"}, {n:"ฮั่งเส็งบ่าย VIP", f:"hk"}, {n:"ลาวสตาร์", f:"la"}, {n:"สิงคโปร์", f:"sg"}, {n:"ไทยเย็น", f:"th"}, {n:"ฮานอยกาชาด", f:"vn"}, {n:"อินเดีย", f:"in"}, {n:"สิงคโปร์ VIP", f:"sg"}, {n:"อียิปต์", f:"eg"}, {n:"ฮานอยสามัคคี", f:"vn"}, {n:"ฮานอยพิเศษ", f:"vn"}, {n:"ฮานอยปกติ", f:"vn"}, {n:"ฮานอย VIP", f:"vn"}, {n:"ฮานอยพัฒนา", f:"vn"}, {n:"ลาวพัฒนา", f:"la"}, {n:"ลาวสามัคคี", f:"la"}, {n:"ลาวอาเซียน", f:"la"}, {n:"ลาว VIP", f:"la"}, {n:"ลาวสามัคคี VIP", f:"la"}, {n:"อังกฤษ VIP", f:"gb"}, {n:"ลาวสตาร์ VIP", f:"la"}, {n:"ฮานอย Extra", f:"vn"}, {n:"อังกฤษ", f:"gb"}, {n:"เยอรมัน", f:"de"}, {n:"รัสเซีย", f:"ru"}, {n:"เยอรมัน VIP", f:"de"}, {n:"ลาวกาชาด", f:"la"}, {n:"รัสเซีย VIP", f:"ru"}, {n:"ดาวโจนส์ VIP", f:"us"}, {n:"ดาวโจนส์ STAR", f:"us"}, {n:"ดาวโจนส์", f:"us"}],
-        "หวย เสาร์-อาทิตย์": [{n:"ลาว Extra", f:"la"}, {n:"นิเคอิเช้า VIP", f:"jp"}, {n:"นอยอาเซียน", f:"vn"}, {n:"จีนเช้า VIP", f:"cn"}, {n:"ลาว TV", f:"la"}, {n:"ฮั่งเส็งเช้า VIP", f:"hk"}, {n:"ฮานอย HD", f:"vn"}, {n:"ไต้หวัน VIP", f:"tw"}, {n:"ฮานอย STAR", f:"vn"}, {n:"เกาหลี VIP", f:"kr"}, {n:"นิเคอิบ่าย VIP", f:"jp"}, {n:"ลาว HD", f:"la"}, {n:"ฮานอย TV", f:"vn"}, {n:"จีนบ่าย VIP", f:"cn"}, {n:"ฮั่งเส็งบ่าย VIP", f:"hk"}, {n:"ลาวสตาร์", f:"la"}, {n:"ฮานอยกาชาด", f:"vn"}, {n:"สิงคโปร์ VIP", f:"sg"}, {n:"ฮานอยพิเศษ", f:"vn"}, {n:"ฮานอยสามัคคี", f:"vn"}, {n:"ฮานอยปกติ", f:"vn"}, {n:"ฮานอย VIP", f:"vn"}, {n:"ฮานอยพัฒนา", f:"vn"}, {n:"ลาวสามัคคี", f:"la"}, {n:"ลาวอาเซียน", f:"la"}, {n:"ลาว VIP", f:"la"}, {n:"ลาวสามัคคี VIP", f:"la"}, {n:"อังกฤษ VIP", f:"gb"}, {n:"ลาวสตาร์ VIP", f:"la"}, {n:"ฮานอย Extra", f:"vn"}, {n:"อังกฤษ", f:"gb"}, {n:"เยอรมัน", f:"de"}, {n:"รัสเซีย", f:"ru"}, {n:"เยอรมัน VIP", f:"de"}, {n:"ลาวกาชาด", f:"la"}, {n:"รัสเซีย VIP", f:"ru"}, {n:"ดาวโจนส์ VIP", f:"us"}, {n:"ดาวโจนส์ STAR", f:"us"}]
+        "หวย เสาร์-อาทิตย์": [{n:"ลาว Extra", f:"la"}, {n:"นิเคอิเช้า VIP", f:"jp"}, {n:"นอยอาเซียน", f:"vn"}, {n:"จีนเช้า VIP", f:"cn"}, {n:"ลาว TV", f:"la"}, {n:"ฮั่งเส็งเช้า VIP", f:"hk"}, {n:"ฮานอย HD", f:"vn"}, {n:"ไต้หวัน VIP", f:"tw"}, {n:"ฮานอย STAR", f:"vn"}, {n:"เกาหลี VIP", f:"kr"}, {n:"นิเคอิบ่าย VIP", f:"jp"}, {n:"ลาว HD", f:"la"}, {n:"ฮานอย TV", f:"vn"}, {n:"จีนบ่าย VIP", f:"cn"}, {n:"ฮั่งเส็งบ่าย VIP", f:"hk"}, {n:"ลาวสตาร์", f:"la"}, {n:"ฮานอยกาชาด", f:"vn"}, {n:"สิงคโปร์ VIP", f:"sg"}, {n:"ฮานอยพิเศษ", f:"vn"}, {n:"ฮานอยสามัคคี", f:"vn"}, {n:"ฮานอยปกติ", f:"vn"}, {n:"ฮานอย VIP", f:"vn"}, {n:"ฮานอยพัฒนา", f:"vn"}, {n:"ลาวสามัคคี", f:"la"}, {n:"ลาวอาเซียน", f:"la"}, {n:"ลาว VIP", f:"la"}, {n:"ลาวสามัคคี VIP", f:"la"}, {n:"อังกฤษ VIP", f:"gb"}, {n:"ลาวสตาร์ VIP", f:"la"}, {n:"ฮานอย Extra", f:"vn"}, {n:"เยอรมัน VIP", f:"de"}, {n:"ลาวกาชาด", f:"la"}, {n:"รัสเซีย VIP", f:"ru"}, {n:"ดาวโจนส์ VIP", f:"us"}, {n:"ดาวโจนส์ STAR", f:"us"}]
     };
 
     let curF = "หวย จันทร์-ศุกร์", curI = 0, isLocked = false, curDate = new Date();
 
-    function processCanvasData(callback) {
-        const c = document.createElement('canvas'), ctx = c.getContext('2d'), img = new Image(); 
-        img.src = '20183.png'; 
-        img.onload = () => { 
-            c.width = img.width; 
-            c.height = img.height; 
-            ctx.drawImage(img, 0, 0, c.width, c.height); 
-            
-            const container = document.getElementById('capture'); 
-            const baseW = container.offsetWidth;
-            const baseH = container.offsetHeight;
-            
-            document.querySelectorAll('.number-box').forEach(box => { 
-                const s = window.getComputedStyle(box);
-                
-                // คำนวณพิกัดเริ่มต้นจาก inline style เปอร์เซ็นต์โดยตรงเพื่อความแม่นยำสูงสุด ไม่สนหน้าจอพังๆ
-                const pctLeft = parseFloat(box.style.left) || 0;
-                const pctTop = parseFloat(box.style.top) || 0;
-                const pctWidth = parseFloat(box.style.width) || 0;
-                
-                // ดึงพิกัดจากการลาก (interact.js) 
-                const dragX = parseFloat(box.getAttribute('data-x')) || 0;
-                const dragY = parseFloat(box.getAttribute('data-y')) || 0;
-                
-                // แปลงพิกัดการลากให้เป็นสเกลของรูปภาพ Canvas จริง
-                const finalX = ((pctLeft / 100) * c.width) + ((pctWidth / 100) * c.width / 2) + (dragX * (c.width / baseW));
-                const finalY = ((pctTop / 100) * c.height) + (dragY * (c.height / baseH)) + (parseFloat(s.fontSize) * (c.width / baseW) / 2);
-                
-                ctx.font = `bold ${parseFloat(s.fontSize) * (c.width / baseW)}px ${s.fontFamily}`; 
-                ctx.fillStyle = box.id === 'den' ? 'red' : '#3a1a02'; 
-                ctx.textAlign = 'center'; 
-                ctx.textBaseline = 'middle'; 
-                
-                ctx.fillText(box.textContent, finalX, finalY); 
-            });
-            callback(c);
-        };
-    }
-
-    function exportCanvas() { 
-        processCanvasData((canvas) => {
-            const l = document.createElement('a'); 
-            l.download = 'Lotto_' + Date.now() + '.png'; 
-            l.href = canvas.toDataURL("image/png"); 
-            l.click(); 
-        });
-    }
+    function exportCanvas() { const c = document.createElement('canvas'), ctx = c.getContext('2d'), img = new Image(); img.src = '20183.png'; img.onload = () => { c.width = img.width; c.height = img.height; ctx.drawImage(img, 0, 0, c.width, c.height); const container = document.getElementById('capture'); document.querySelectorAll('.number-box').forEach(box => { const s = window.getComputedStyle(box), rect = box.getBoundingClientRect(), cont = container.getBoundingClientRect(); const centerX = (rect.left - cont.left + rect.width / 2) / container.offsetWidth; const centerY = (rect.top - cont.top + rect.height / 2) / container.offsetHeight; ctx.font = `bold ${parseFloat(s.fontSize) * (c.width / container.offsetWidth)}px ${s.fontFamily}`; ctx.fillStyle = box.id === 'den' ? 'red' : '#3a1a02'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(box.textContent, centerX * c.width, centerY * c.height); }); const l = document.createElement('a'); l.download = 'Lotto_' + Date.now() + '.png'; l.href = c.toDataURL("image/png"); l.click(); }; }
     
     function exportForIOS() {
-        processCanvasData((canvas) => {
-            const dataURL = canvas.toDataURL("image/png");
+        const c = document.createElement('canvas'), ctx = c.getContext('2d'), img = new Image();
+        img.src = '20183.png';
+        img.onload = () => {
+            c.width = img.width; c.height = img.height; ctx.drawImage(img, 0, 0, c.width, c.height);
+            const container = document.getElementById('capture');
+            document.querySelectorAll('.number-box').forEach(box => {
+                const s = window.getComputedStyle(box), rect = box.getBoundingClientRect(), cont = container.getBoundingClientRect();
+                const centerX = (rect.left - cont.left + rect.width / 2) / container.offsetWidth;
+                const centerY = (rect.top - cont.top + rect.height / 2) / container.offsetHeight;
+                ctx.font = `bold ${parseFloat(s.fontSize) * (c.width / container.offsetWidth)}px ${s.fontFamily}`;
+                ctx.fillStyle = box.id === 'den' ? 'red' : '#3a1a02';
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.fillText(box.textContent, centerX * c.width, centerY * c.height);
+            });
+            const dataURL = c.toDataURL("image/png");
             const tempPage = document.createElement('div');
             tempPage.id = 'temp-ios-page';
             tempPage.style = "position:fixed; top:0; left:0; width:100%; height:100%; z-index:9999; text-align:center; padding:20px; color:white; background:#0b0b0b; overflow-y:auto;";
             tempPage.innerHTML = `<h3 style="color:#ffd700;">กดค้างที่รูป > บันทึกไปยังรูปภาพ</h3><img src="${dataURL}" style="width:100%; max-width:500px; border:2px solid #b8860b; border-radius:10px;"><br><br><button onclick="document.getElementById('temp-ios-page').remove(); document.getElementById('page-main').style.display='block';" style="padding:15px 30px; background:#b8860b; color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer;">ย้อนกลับ</button>`;
-            
             document.body.appendChild(tempPage);
             document.getElementById('page-main').style.display = 'none';
-        });
+        };
     }
 
     function loadLotto(f, i) { curF = f; curI = i; document.getElementById('title').textContent = db[f][i].n; showPage('page-main'); genNumbers(); save(); }
