@@ -41,7 +41,7 @@
 
     <div class="button-grid">
         <button class="btn-action full-width" style="background:linear-gradient(45deg, #b8860b, #ffd700); color:#000;" onclick="genNumbers()">สุ่มเลขนำโชค</button>
-        <button class="btn-action full-width" style="background:linear-gradient(45deg, #228b22, #32cd32);" onclick="openForSave()">📸 บันทึกรูป (iOS/Android)</button>
+        <button class="btn-action full-width" style="background:linear-gradient(45deg, #28a745, #20c997);" onclick="exportForIOS()">📸 บันทึกรูป (iOS)</button>
         <button class="btn-action" id="lock-btn" onclick="toggleLock()" style="background:#333;">🔓 ปลดล็อค</button>
         <button class="btn-action" style="background:#cc0000;" onclick="resetAll()">🔄 รีเซ็ตทั้งหมด</button>
     </div>
@@ -52,7 +52,7 @@
         <button class="btn-action" style="background:#555;" onclick="moveLotto(1)">ถัดไป ▶</button>
     </div>
     
-    <div class="container" id="capture">
+    <div class="container" id="capture" onclick="exportCanvas()">
         <div id="title" class="number-box" style="top:35%; left:5%; width:90%; font-size:40px;">หวย</div>
         <div id="line" class="number-box" style="top:25%; left:45%; width:40%; font-size:13px; color:white; font-family:Sarabun;">napas1805</div>
         <div id="date-display" class="number-box" style="top:45%; left:5%; width:90%; font-size:24px; color:#3a1a02;"></div>
@@ -74,7 +74,11 @@
 
     let curF = "หวย จันทร์-ศุกร์", curI = 0, isLocked = false, curDate = new Date();
 
-    function openForSave() {
+    // ระบบเดิม (คลิกที่รูปปกติ)
+    function exportCanvas() { const c = document.createElement('canvas'), ctx = c.getContext('2d'), img = new Image(); img.src = '20183.png'; img.onload = () => { c.width = img.width; c.height = img.height; ctx.drawImage(img, 0, 0, c.width, c.height); const container = document.getElementById('capture'); document.querySelectorAll('.number-box').forEach(box => { const s = window.getComputedStyle(box), rect = box.getBoundingClientRect(), cont = container.getBoundingClientRect(); const centerX = (rect.left - cont.left + rect.width / 2) / container.offsetWidth; const centerY = (rect.top - cont.top + rect.height / 2) / container.offsetHeight; ctx.font = `bold ${parseFloat(s.fontSize) * (c.width / container.offsetWidth)}px ${s.fontFamily}`; ctx.fillStyle = box.id === 'den' ? 'red' : '#3a1a02'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(box.textContent, centerX * c.width, centerY * c.height); }); const l = document.createElement('a'); l.download = 'Lotto_' + Date.now() + '.png'; l.href = c.toDataURL("image/png"); l.click(); }; }
+    
+    // ระบบสร้างใหม่สำหรับ iOS (แสดงในหน้าใหม่แบบไม่บล็อก Pop-up)
+    function exportForIOS() {
         const c = document.createElement('canvas'), ctx = c.getContext('2d'), img = new Image();
         img.src = '20183.png';
         img.onload = () => {
@@ -89,9 +93,15 @@
                 ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
                 ctx.fillText(box.textContent, centerX * c.width, centerY * c.height);
             });
-            const newTab = window.open();
-            newTab.document.write(`<img src="${c.toDataURL("image/png")}" style="width:100%">`);
-            newTab.document.write('<p style="text-align:center; font-family:sans-serif;">กดค้างที่รูปภาพเพื่อบันทึก</p>');
+            const dataURL = c.toDataURL("image/png");
+            document.body.innerHTML = `
+                <div style="text-align:center; padding:20px; color:white; background:#0b0b0b; min-height:100vh;">
+                    <h3 style="color:#ffd700;">กดค้างที่รูป > บันทึกไปยังรูปภาพ</h3>
+                    <img src="${dataURL}" style="width:100%; max-width:500px; border:2px solid #b8860b; border-radius:10px;">
+                    <br><br>
+                    <button onclick="location.reload()" style="padding:15px 30px; background:#b8860b; color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer;">ย้อนกลับ</button>
+                </div>
+            `;
         };
     }
 
