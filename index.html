@@ -74,10 +74,8 @@
 
     let curF = "หวย จันทร์-ศุกร์", curI = 0, isLocked = false, curDate = new Date();
 
-    // ระบบเดิม (คลิกที่รูปปกติ)
     function exportCanvas() { const c = document.createElement('canvas'), ctx = c.getContext('2d'), img = new Image(); img.src = '20183.png'; img.onload = () => { c.width = img.width; c.height = img.height; ctx.drawImage(img, 0, 0, c.width, c.height); const container = document.getElementById('capture'); document.querySelectorAll('.number-box').forEach(box => { const s = window.getComputedStyle(box), rect = box.getBoundingClientRect(), cont = container.getBoundingClientRect(); const centerX = (rect.left - cont.left + rect.width / 2) / container.offsetWidth; const centerY = (rect.top - cont.top + rect.height / 2) / container.offsetHeight; ctx.font = `bold ${parseFloat(s.fontSize) * (c.width / container.offsetWidth)}px ${s.fontFamily}`; ctx.fillStyle = box.id === 'den' ? 'red' : '#3a1a02'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(box.textContent, centerX * c.width, centerY * c.height); }); const l = document.createElement('a'); l.download = 'Lotto_' + Date.now() + '.png'; l.href = c.toDataURL("image/png"); l.click(); }; }
     
-    // ระบบสร้างใหม่สำหรับ iOS (แสดงในหน้าใหม่แบบไม่บล็อก Pop-up)
     function exportForIOS() {
         const c = document.createElement('canvas'), ctx = c.getContext('2d'), img = new Image();
         img.src = '20183.png';
@@ -99,7 +97,10 @@
                     <h3 style="color:#ffd700;">กดค้างที่รูป > บันทึกไปยังรูปภาพ</h3>
                     <img src="${dataURL}" style="width:100%; max-width:500px; border:2px solid #b8860b; border-radius:10px;">
                     <br><br>
-                    <button onclick="location.reload()" style="padding:15px 30px; background:#b8860b; color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer;">ย้อนกลับ</button>
+                    <div style="display:flex; justify-content:center; gap:10px;">
+                        <button onclick="location.reload()" style="padding:15px 20px; background:#555; color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer;">ย้อนกลับ</button>
+                        <button onclick="genNumbers(); exportForIOS();" style="padding:15px 20px; background:#b8860b; color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer;">สุ่มเลขใหม่</button>
+                    </div>
                 </div>
             `;
         };
