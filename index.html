@@ -41,6 +41,8 @@
 
     <div class="button-grid">
         <button class="btn-action full-width" style="background:linear-gradient(45deg, #b8860b, #ffd700); color:#000;" onclick="genNumbers()">สุ่มเลขนำโชค</button>
+        <button class="btn-action full-width" style="background:#28a745;" onclick="iosSaveHelper()">📸 บันทึกรูป (iOS)</button>
+        
         <button class="btn-action" id="lock-btn" onclick="toggleLock()" style="background:#333;">🔓 ปลดล็อค</button>
         <button class="btn-action" style="background:#cc0000;" onclick="resetAll()">🔄 รีเซ็ตทั้งหมด</button>
     </div>
@@ -74,6 +76,28 @@
     let curF = "หวย จันทร์-ศุกร์", curI = 0, isLocked = false, curDate = new Date();
 
     function exportCanvas() { const c = document.createElement('canvas'), ctx = c.getContext('2d'), img = new Image(); img.src = '20183.png'; img.onload = () => { c.width = img.width; c.height = img.height; ctx.drawImage(img, 0, 0, c.width, c.height); const container = document.getElementById('capture'); document.querySelectorAll('.number-box').forEach(box => { const s = window.getComputedStyle(box), rect = box.getBoundingClientRect(), cont = container.getBoundingClientRect(); const centerX = (rect.left - cont.left + rect.width / 2) / container.offsetWidth; const centerY = (rect.top - cont.top + rect.height / 2) / container.offsetHeight; ctx.font = `bold ${parseFloat(s.fontSize) * (c.width / container.offsetWidth)}px ${s.fontFamily}`; ctx.fillStyle = box.id === 'den' ? 'red' : '#3a1a02'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(box.textContent, centerX * c.width, centerY * c.height); }); const l = document.createElement('a'); l.download = 'Lotto_' + Date.now() + '.png'; l.href = c.toDataURL("image/png"); l.click(); }; }
+    
+    // ฟังก์ชันเสริมสำหรับ iOS แยกออกมา
+    function iosSaveHelper() {
+        const c = document.createElement('canvas'), ctx = c.getContext('2d'), img = new Image();
+        img.src = '20183.png';
+        img.onload = () => {
+            c.width = img.width; c.height = img.height; ctx.drawImage(img, 0, 0, c.width, c.height);
+            const container = document.getElementById('capture');
+            document.querySelectorAll('.number-box').forEach(box => {
+                const s = window.getComputedStyle(box), rect = box.getBoundingClientRect(), cont = container.getBoundingClientRect();
+                const centerX = (rect.left - cont.left + rect.width / 2) / container.offsetWidth;
+                const centerY = (rect.top - cont.top + rect.height / 2) / container.offsetHeight;
+                ctx.font = `bold ${parseFloat(s.fontSize) * (c.width / container.offsetWidth)}px ${s.fontFamily}`;
+                ctx.fillStyle = box.id === 'den' ? 'red' : '#3a1a02';
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.fillText(box.textContent, centerX * c.width, centerY * c.height);
+            });
+            const win = window.open();
+            win.document.write(`<div style="text-align:center;"><img src="${c.toDataURL("image/png")}" style="width:100%"><p style="font-family:sans-serif;">กดค้างที่รูป > บันทึกไปยังรูปภาพ</p></div>`);
+        };
+    }
+
     function loadLotto(f, i) { curF = f; curI = i; document.getElementById('title').textContent = db[f][i].n; showPage('page-main'); genNumbers(); save(); }
     function showPage(p) { document.getElementById('page-menu').style.display = p=='page-menu'?'block':'none'; document.getElementById('page-main').style.display = p=='page-main'?'block':'none'; }
     function moveLotto(d) { curI += d; if(curI < 0) curI = 0; if(curI >= db[curF].length) curI = db[curF].length - 1; loadLotto(curF, curI); }
@@ -98,28 +122,6 @@
     interact('.number-box').draggable({ listeners: { move(e) { if(!isLocked) { const t=e.target; const x=(parseFloat(t.getAttribute('data-x'))||0)+e.dx; const y=(parseFloat(t.getAttribute('data-y'))||0)+e.dy; t.style.transform=`translate(${x}px, ${y}px)`; t.setAttribute('data-x', x); t.setAttribute('data-y', y); save(); } } } });
     Object.keys(db).forEach(f => { let b=document.createElement('button'); b.className='btn-folder'; b.textContent=f; let l=document.createElement('div'); l.className='lottery-list'; b.onclick=() => { document.querySelectorAll('.lottery-list').forEach(i=>i.classList.remove('active')); l.classList.add('active'); }; db[f].forEach((item,i) => { let s=document.createElement('button'); s.className='btn-lotto'; let img = document.createElement('img'); img.src = `https://flagcdn.com/w20/${item.f}.png`; img.style.borderRadius="2px"; s.appendChild(img); s.append(item.n); s.onclick=(e)=>{e.stopPropagation(); loadLotto(f,i)}; l.appendChild(s); }); document.getElementById('menu').appendChild(b); document.getElementById('menu').appendChild(l); });
     window.onload = () => { load(); if(!localStorage.getItem('napas')) adjustDate(0); };
-
-    // --- ส่วนเพิ่มแยกต่างหากสำหรับ iOS (ไม่แตะต้องของเดิม) ---
-    function iosSaveHelper() {
-        const c = document.createElement('canvas'), ctx = c.getContext('2d'), img = new Image();
-        img.src = '20183.png';
-        img.onload = () => {
-            c.width = img.width; c.height = img.height; ctx.drawImage(img, 0, 0, c.width, c.height);
-            const container = document.getElementById('capture');
-            document.querySelectorAll('.number-box').forEach(box => {
-                const s = window.getComputedStyle(box), rect = box.getBoundingClientRect(), cont = container.getBoundingClientRect();
-                const centerX = (rect.left - cont.left + rect.width / 2) / container.offsetWidth;
-                const centerY = (rect.top - cont.top + rect.height / 2) / container.offsetHeight;
-                ctx.font = `bold ${parseFloat(s.fontSize) * (c.width / container.offsetWidth)}px ${s.fontFamily}`;
-                ctx.fillStyle = box.id === 'den' ? 'red' : '#3a1a02';
-                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-                ctx.fillText(box.textContent, centerX * c.width, centerY * c.height);
-            });
-            const dataURL = c.toDataURL("image/png");
-            const newTab = window.open();
-            newTab.document.write(`<img src="${dataURL}" style="width:100%"><p>กดค้างที่รูป > บันทึกไปยังรูปภาพ</p>`);
-        };
-    }
 </script>
 </body>
 </html>
