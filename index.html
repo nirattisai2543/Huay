@@ -92,18 +92,12 @@
                 ctx.fillText(box.textContent, centerX * c.width, centerY * c.height);
             });
             const dataURL = c.toDataURL("image/png");
-            document.body.innerHTML = `
-                <div style="text-align:center; padding:20px; color:white; background:#0b0b0b; min-height:100vh;">
-                    <h3 style="color:#ffd700;">กดค้างที่รูป > บันทึกไปยังรูปภาพ</h3>
-                    <img src="${dataURL}" style="width:100%; max-width:500px; border:2px solid #b8860b; border-radius:10px;">
-                    <p style="margin:10px; color:#aaa;">${document.getElementById('title').textContent}</p>
-                    <br><br>
-                    <div style="display:flex; justify-content:center; gap:10px;">
-                        <button onclick="location.reload()" style="padding:15px 20px; background:#555; color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer;">ย้อนกลับ</button>
-                        <button onclick="moveLotto(1); genNumbers(); exportForIOS();" style="padding:15px 20px; background:#b8860b; color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer;">เปลี่ยนหวย + สุ่มใหม่</button>
-                    </div>
-                </div>
-            `;
+            const tempPage = document.createElement('div');
+            tempPage.id = 'temp-ios-page';
+            tempPage.style = "position:fixed; top:0; left:0; width:100%; height:100%; z-index:9999; text-align:center; padding:20px; color:white; background:#0b0b0b; overflow-y:auto;";
+            tempPage.innerHTML = `<h3 style="color:#ffd700;">กดค้างที่รูป > บันทึกไปยังรูปภาพ</h3><img src="${dataURL}" style="width:100%; max-width:500px; border:2px solid #b8860b; border-radius:10px;"><br><br><button onclick="document.getElementById('temp-ios-page').remove(); document.getElementById('page-main').style.display='block';" style="padding:15px 30px; background:#b8860b; color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer;">ย้อนกลับ</button>`;
+            document.body.appendChild(tempPage);
+            document.getElementById('page-main').style.display = 'none';
         };
     }
 
